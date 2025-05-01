@@ -8,6 +8,7 @@ const config: StorybookConfig = {
     '@storybook/addon-essentials',
     '@chromatic-com/storybook',
     '@storybook/experimental-addon-test',
+    '@storybook/addon-backgrounds',
   ],
   framework: {
     name: '@storybook/react-vite',

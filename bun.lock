@@ -25,6 +25,7 @@
       "devDependencies": {
         "@biomejs/biome": "1.9.4",
         "@chromatic-com/storybook": "3",
+        "@storybook/addon-backgrounds": "^8.6.12",
         "@storybook/addon-essentials": "8.6.12",
         "@storybook/blocks": "8.6.12",
         "@storybook/experimental-addon-test": "8.6.12",
