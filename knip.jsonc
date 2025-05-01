@@ -1,0 +1,9 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema-jsonc.json",
+  "ignore": [
+    "src/routeTree.gen.ts"
+  ],
+  "ignoreDependencies": [
+    "@biomejs/biome"
+  ]
+}
