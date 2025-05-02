@@ -127,8 +127,12 @@ code {
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    @apply text-slate-200
   }
   body {
     @apply bg-background text-foreground;
+  }
+  h1 {
+    font-size: var(--text-4xl);
   }
 }

@@ -4,6 +4,7 @@ import '../src/styles.css';
 const preview: Preview = {
   tags: ['autodocs'],
   parameters: {
+    layout: 'fullscreen',
     backgrounds: {
       values: [
         { name: 'Space', value: '#000' },
