@@ -83,7 +83,7 @@ function Home() {
   return (
     <>
       <div
-        data-testId={'home-root-element'}
+        data-testid={'home-root-element'}
         className="h-screen w-screen flex place-items-center justify-center flex-col gap-4 relative z-10"
         style={{
           backdropFilter: `blur(${blurAmount}px)`,
@@ -92,15 +92,15 @@ function Home() {
         onWheel={handleScroll}
       >
         <h1
-          data-testId="home-title"
+          data-testid="home-title"
           className="absolute"
-          style={{ top: titlePosition }}
+          style={{ top: titlePosition, textAlign: 'center' }}
         >
           What is your favorite thing about Earth?
         </h1>
         <div
-          data-testId="home-form"
-          className="w-[80%]"
+          data-testid="home-form"
+          className="w-[80%] max-w-[800px]"
           style={{
             opacity: scrollPos / 100,
             display: scrollPos > 0 ? 'initial' : 'none',
@@ -112,7 +112,7 @@ function Home() {
         </div>
         <style>{scrollAnimationKeyframes}</style>
         <p
-          data-testId="home-title"
+          data-testid="home-title"
           className="absolute text-slate-600 font-light"
           style={{
             bottom: '1%',

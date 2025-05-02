@@ -27,7 +27,7 @@ function Globe({ position }: { position: number }) {
   }, [position]);
 
   return (
-    <div data-testId={'globe-root-element'} className="cursor-move">
+    <div data-testid={'globe-root-element'} className="cursor-move">
       <UnderGlobe
         // disable autorotate when the user clicks the globe
         onGlobeClick={() => setAutoSpin(false)}

@@ -39,17 +39,26 @@ function AddReasonForm({
           control={form.control}
           name="message"
           render={({ field }) => (
-            <FormItem style={{ flexGrow: 1 }}>
+            <FormItem style={{ flexGrow: 1, position: 'relative' }}>
               <FormControl>
                 <Textarea
-                  placeholder="Tell us..."
+                  placeholder="Tell the world..."
                   rows={2}
                   {...field}
+                  onBlur={() => {
+                    form.clearErrors('message');
+                  }}
                   style={{ resize: 'none' }}
                   className="border-3 border-slate-700 hover:border-slate-700/90 bg-slate-200"
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage
+                style={{
+                  position: 'absolute',
+                  bottom: '-23px',
+                  justifySelf: 'center',
+                }}
+              />
             </FormItem>
           )}
         />
