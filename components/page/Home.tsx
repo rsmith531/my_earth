@@ -18,7 +18,6 @@ function Home() {
   };
 
   const handleScroll = (e: WheelEvent<HTMLDivElement>) => {
-    console.log('[Home] scrolled', e.deltaY);
     switch (Math.sign(e.deltaY)) {
       case 1: {
         // scrolling down
@@ -41,7 +40,6 @@ function Home() {
         break;
       }
     }
-    console.log(`[Home] scrollPos is ${scrollPos}`);
   };
 
   /**
