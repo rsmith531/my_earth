@@ -1,7 +1,7 @@
 import { AddReasonForm } from '@components/section/AddReasonForm';
 import { Globe } from '@components/section/Globe';
 import { Button } from '@components/ui/button';
-import { useState, type WheelEvent } from 'react';
+import { useState, type WheelEvent, type TouchEvent, useEffect } from 'react';
 
 function Home() {
   /**
@@ -12,35 +12,71 @@ function Home() {
    * Range: [0, 100]
    */
   const [scrollPos, setScrollPos] = useState<number>(100);
+  const [allowGlobeInteraction, setAllowGlobeInteraction] =
+    useState<boolean>(false);
 
   const resetScroll = () => {
     setScrollPos(100);
   };
 
   const handleScroll = (e: WheelEvent<HTMLDivElement>) => {
-    switch (Math.sign(e.deltaY)) {
+    handleScrollPos(e.deltaY);
+  };
+  const handleTouch = (e: TouchEvent<HTMLDivElement>) => {
+    console.log('[Home] touched: ', e);
+  };
+
+  const handleScrollPos = (change: number) => {
+    const scrollScale = 5;
+    switch (Math.sign(change)) {
       case 1: {
         // scrolling down
-        setScrollPos((prevPos) => Math.max(0, prevPos - 1));
+        setScrollPos((prevPos) => Math.max(0, prevPos - scrollScale));
         break;
       }
       case -1: {
         // scrolling up
-        setScrollPos((prevPos) => Math.min(100, prevPos + 1));
+        setScrollPos((prevPos) => Math.min(100, prevPos + scrollScale));
         break;
       }
       case 0: {
         // being a user
-        console.warn(`[Home] e.deltaY was ${e.deltaY}`);
+        console.warn(`[Home] attempted to change scrollPos with ${change}`);
         break;
       }
       default: {
         // wut?
-        console.error(`[Home] how tho? ${e.deltaY}`);
+        console.error(`[Home] how tho? ${change}`);
         break;
       }
     }
   };
+
+  /**
+   * when scrollPos becomes 0, start a timer. If the timer completes, allow the
+   * user to interact with the globe.
+   *
+   * Intended to "debounce" scroll inputs to prevent the user from zooming way
+   * out on the globe by continuing to scroll after scrollPos becomes 0, which
+   * is a pretty common case.
+   */
+  useEffect(() => {
+    let timerId: NodeJS.Timeout;
+
+    if (scrollPos === 0) {
+      timerId = setTimeout(() => {
+        setAllowGlobeInteraction(true);
+      }, 1000); // 1 second
+    } else {
+      // If scrollPos is not 0, disallow globe interaction immediately
+      // This also handles cases where scrollPos moves away from 0 before the timer finishes
+      setAllowGlobeInteraction(false);
+    }
+
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [scrollPos]);
 
   /**
    * Calculate the position of the title based on scrollPos to adjust it with linear interpolation.
@@ -68,14 +104,11 @@ function Home() {
 
   const scrollAnimationKeyframes = `
   @keyframes scrollUpDown {
-    0% {
+    0%, 100% {
       transform: translateY(0);
     }
     50% {
-      transform: translateY(-10px); /* Move up 20px */
-    }
-    100% {
-      transform: translateY(0);
+      transform: translateY(-10px);
     }
   }
 `;
@@ -87,9 +120,11 @@ function Home() {
         className="h-screen w-screen flex place-items-center justify-center flex-col gap-4 relative z-10"
         style={{
           backdropFilter: `blur(${blurAmount}px)`,
-          pointerEvents: scrollPos === 0 ? 'none' : 'auto',
+          pointerEvents:
+            scrollPos === 0 && allowGlobeInteraction ? 'none' : 'auto',
         }}
         onWheel={handleScroll}
+        onTouchMove={handleTouch}
       >
         <h1
           data-testid="home-title"
@@ -133,7 +168,7 @@ function Home() {
             bottom: '1%',
             left: '50%',
             transform: 'translateX(-50%)',
-            opacity: scrollPos === 0 ? 1 : 0,
+            opacity: scrollPos === 0 && allowGlobeInteraction ? 1 : 0,
             // make the button fade in
             transition: 'opacity 0.5s ease-in-out',
             // make fade out instant
