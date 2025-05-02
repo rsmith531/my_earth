@@ -3,6 +3,7 @@ import { Home } from './Home';
 
 const meta: Meta<typeof Home> = {
   component: Home,
+  tags: ['!autodocs'],
 };
 
 type Story = StoryObj<typeof Home>;

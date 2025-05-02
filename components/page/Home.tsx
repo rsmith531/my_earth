@@ -1,4 +1,6 @@
 import { AddReasonForm } from '@components/section/AddReasonForm';
+import { Globe } from '@components/section/Globe';
+import { Button } from '@components/ui/button';
 import { useState, type WheelEvent } from 'react';
 
 function Home() {
@@ -10,6 +12,11 @@ function Home() {
    * Range: [0, 100]
    */
   const [scrollPos, setScrollPos] = useState<number>(100);
+
+  const resetScroll = () => {
+    setScrollPos(100);
+  };
+
   const handleScroll = (e: WheelEvent<HTMLDivElement>) => {
     console.log('[Home] scrolled', e.deltaY);
     switch (Math.sign(e.deltaY)) {
@@ -76,44 +83,70 @@ function Home() {
 `;
 
   return (
-    <div
-      data-testId={'home-root-element'}
-      className="h-screen w-screen flex place-items-center justify-center flex-col gap-4 relative"
-      style={{ backdropFilter: `blur(${blurAmount}px)` }}
-      onWheel={handleScroll}
-    >
-      <h1
-        data-testId="home-title"
-        className="absolute"
-        style={{ top: titlePosition }}
-      >
-        What is your favorite thing about Earth?
-      </h1>
+    <>
       <div
-        data-testId="home-form"
-        className="w-[80%]"
+        data-testId={'home-root-element'}
+        className="h-screen w-screen flex place-items-center justify-center flex-col gap-4 relative z-10"
         style={{
-          opacity: scrollPos / 100,
-          display: scrollPos ? 'initial' : 'none',
+          backdropFilter: `blur(${blurAmount}px)`,
+          pointerEvents: scrollPos === 0 ? 'none' : 'auto',
         }}
+        onWheel={handleScroll}
       >
-        <AddReasonForm submitCallback={async (values) => console.log(values)} />
+        <h1
+          data-testId="home-title"
+          className="absolute"
+          style={{ top: titlePosition }}
+        >
+          What is your favorite thing about Earth?
+        </h1>
+        <div
+          data-testId="home-form"
+          className="w-[80%]"
+          style={{
+            opacity: scrollPos / 100,
+            display: scrollPos > 0 ? 'initial' : 'none',
+          }}
+        >
+          <AddReasonForm
+            submitCallback={async (values) => console.log(values)}
+          />
+        </div>
+        <style>{scrollAnimationKeyframes}</style>
+        <p
+          data-testId="home-title"
+          className="absolute text-slate-600 font-light"
+          style={{
+            bottom: '1%',
+            opacity: scrollPos / 100,
+            display: scrollPos > 0 ? 'initial' : 'none',
+            // TODO: figure out why this is waiting 10s on mount, then looping every 1s instead of looping every 10s
+            //   animation: 'scrollUpDown 1s cubic-bezier(0.7, 0, 0.3, 1) 10s infinite'
+          }}
+        >
+          scroll down
+        </p>
       </div>
-      <style>{scrollAnimationKeyframes}</style>
-      <p
-        data-testId="home-title"
-        className="absolute text-slate-600 font-light"
-        style={{
-          bottom: '1%',
-          opacity: scrollPos / 100,
-          display: scrollPos ? 'initial' : 'none',
-          // TODO: figure out why this is waiting 10s on mount, then looping every 1s instead of looping every 10s
-          //   animation: 'scrollUpDown 1s cubic-bezier(0.7, 0, 0.3, 1) 10s infinite'
-        }}
-      >
-        scroll down
-      </p>
-    </div>
+      <div id="home-globe" className="absolute flex inset-0 z-0">
+        <Globe position={scrollPos} />
+        <Button
+          style={{
+            position: 'absolute',
+            bottom: '1%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            opacity: scrollPos === 0 ? 1 : 0,
+            // make the button fade in
+            transition: 'opacity 0.5s ease-in-out',
+            // make fade out instant
+            visibility: scrollPos === 0 ? 'visible' : 'hidden',
+          }}
+          onClick={resetScroll}
+        >
+          Return Home
+        </Button>
+      </div>
+    </>
   );
 }
 
