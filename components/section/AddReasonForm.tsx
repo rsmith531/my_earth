@@ -11,10 +11,10 @@ import {
   FormItem,
   FormMessage,
 } from '@components/ui/form';
-import { Send } from 'lucide-react';
+import { Send, Locate, CircleAlert } from 'lucide-react';
 import { Textarea } from '@components/ui/textarea';
 import { Input } from '@components/ui/input';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 const validationSchema = z.object({
@@ -66,6 +66,7 @@ function AddReasonForm({
           form.setValue('latitude', position.coords.latitude);
           form.setValue('longitude', position.coords.longitude);
           form.clearErrors(['latitude', 'longitude']);
+          setLocationStatus('success');
         },
         (error) => {
           console.error(
@@ -92,7 +93,12 @@ function AddReasonForm({
               break;
             }
           }
-          toast.error(errorMessage, { position: 'top-left' });
+          toast.error(errorMessage, {
+            position: 'top-left',
+            closeButton: true,
+            duration: Number.POSITIVE_INFINITY,
+          });
+          setLocationStatus('error');
         },
         {
           enableHighAccuracy: true,
@@ -105,10 +111,19 @@ function AddReasonForm({
       );
       toast.error(
         'Your browser does not support geolocation. Unfortunately, we need this feature to pin your message to the globe. Please revisit us on a browser that has it.',
-        { position: 'top-left' },
+        {
+          position: 'top-left',
+          closeButton: true,
+          duration: Number.POSITIVE_INFINITY,
+        },
       );
+      setLocationStatus('error');
     }
   }, [form]);
+
+  const [locationStatus, setLocationStatus] = useState<
+    'loading' | 'error' | 'success'
+  >('loading');
 
   return (
     <Form {...form}>
@@ -120,7 +135,12 @@ function AddReasonForm({
           },
           (errors) => {
             if (errors.latitude) {
-              toast.error(errors.latitude.message, { position: 'top-left' });
+              toast.error(errors.latitude.message, {
+                position: 'top-left',
+                closeButton: true,
+                duration: Number.POSITIVE_INFINITY,
+              });
+              setLocationStatus('error');
             }
           },
         )}
@@ -188,8 +208,15 @@ function AddReasonForm({
         <Button
           type="submit"
           className={'aspect-square h-16 bg-slate-700 hover:bg-slate-700/90'}
+          disabled={locationStatus !== 'success'}
         >
-          <Send className="size-8 stroke-slate-200" />
+          {locationStatus === 'loading' ? (
+            <Locate className="size-8 stroke-slate-200 animate-pulse" />
+          ) : locationStatus === 'error' ? (
+            <CircleAlert className="size-8 stroke-slate-200" />
+          ) : (
+            <Send className="size-8 stroke-slate-200" />
+          )}
         </Button>
       </form>
     </Form>

@@ -57,7 +57,6 @@ function Home({
 
       let newPos: number;
 
-      console.log(`movement is ${movement}`);
       switch (movement) {
         case 'linear': {
           newPos = startPos + (endPos - startPos) * linearProgress;
