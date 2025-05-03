@@ -1,3 +1,5 @@
+// components\section\AddReasonForm.tsx
+
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -18,8 +20,10 @@ const validationSchema = z.object({
 
 function AddReasonForm({
   submitCallback,
+  focusHandler,
 }: {
   submitCallback: (values: z.infer<typeof validationSchema>) => Promise<void>;
+  focusHandler?: () => void;
 }) {
   const form = useForm<z.infer<typeof validationSchema>>({
     mode: 'onChange',
@@ -48,6 +52,7 @@ function AddReasonForm({
                   onBlur={() => {
                     form.clearErrors('message');
                   }}
+                  onFocus={focusHandler}
                   style={{ resize: 'none' }}
                   className="border-3 border-slate-700 hover:border-slate-700/90 bg-slate-200"
                 />
@@ -55,7 +60,7 @@ function AddReasonForm({
               <FormMessage
                 style={{
                   position: 'absolute',
-                  bottom: '-23px',
+                  bottom: '-60%',
                   justifySelf: 'center',
                 }}
               />
