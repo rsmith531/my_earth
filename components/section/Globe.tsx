@@ -3,7 +3,7 @@ import UnderGlobe, { type GlobeMethods } from 'react-globe.gl';
 
 // https://thenewstack.io/recreating-shopifys-bfcm-globe-using-react-globe-gl/
 
-function Globe({ position }: { position: number }) {
+function Globe({ interactive }: { interactive: boolean }) {
   const globeEl = useRef<GlobeMethods | undefined>(undefined);
   const [autoSpin, setAutoSpin] = useState<boolean>(true);
 
@@ -20,11 +20,11 @@ function Globe({ position }: { position: number }) {
    * makes the globe start spinning again when the view is reset
    */
   useEffect(() => {
-    if (position === 100) {
+    if (!interactive) {
       setAutoSpin(true);
       globeEl?.current?.pointOfView({ altitude: 2 }, 1000);
     }
-  }, [position]);
+  }, [interactive]);
 
   return (
     <div data-testid={'globe-root-element'} className="cursor-move">
@@ -35,7 +35,7 @@ function Globe({ position }: { position: number }) {
         globeImageUrl="//cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg"
         backgroundImageUrl="//cdn.jsdelivr.net/npm/three-globe/example/img/night-sky.png"
         globeOffset={[0, 500]}
-        backgroundColor="#00000000"
+        backgroundColor="#00000000" // transparent
       />
     </div>
   );

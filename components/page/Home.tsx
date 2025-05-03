@@ -45,7 +45,7 @@ function Home({
     const startPos = scrollPos;
     const endPos = 100;
     const startTime = performance.now();
-    
+
     const animateScroll = (currentTime: number) => {
       const animationDuration = 1000; // milliseconds
       const elapsed = currentTime - startTime;
@@ -87,35 +87,6 @@ function Home({
     };
 
     animationFrameId.current = requestAnimationFrame(animateScroll);
-  };
-
-  /**
-   * @deprecated
-   */
-  const handleScrollPos = (change: number) => {
-    const scrollScale = 5;
-    switch (Math.sign(change)) {
-      case 1: {
-        // scrolling down
-        setScrollPos((prevPos) => Math.max(0, prevPos - scrollScale));
-        break;
-      }
-      case -1: {
-        // scrolling up
-        setScrollPos((prevPos) => Math.min(100, prevPos + scrollScale));
-        break;
-      }
-      case 0: {
-        // being a user
-        console.warn(`[Home] attempted to change scrollPos with ${change}`);
-        break;
-      }
-      default: {
-        // wut?
-        console.error(`[Home] how tho? ${change}`);
-        break;
-      }
-    }
   };
 
   const handleScrollDelta = (delta: number, sensitivity = 0.06) => {
@@ -258,7 +229,7 @@ function Home({
         </p>
       </div>
       <div id="home-globe" className="absolute flex inset-0 z-0">
-        <Globe position={scrollPos} />
+        <Globe interactive={allowGlobeInteraction} />
         <Button
           style={{
             position: 'absolute',

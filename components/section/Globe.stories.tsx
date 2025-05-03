@@ -7,8 +7,8 @@ const meta: Meta<typeof Globe> = {
 
 type Story = StoryObj<typeof Globe>;
 
-export const Default: Story = { args: { position: 100 } };
+export const Default: Story = { args: { interactive: false } };
 
-export const Elevated: Story = { args: { position: 0 } };
+export const Elevated: Story = { args: { interactive: true } };
 
 export default meta;
