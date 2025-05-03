@@ -1,9 +1,17 @@
 import { AddReasonForm } from '@components/section/AddReasonForm';
 import { Globe } from '@components/section/Globe';
 import { Button } from '@components/ui/button';
-import { useState, type WheelEvent, type TouchEvent, useEffect } from 'react';
+import {
+  useState,
+  type WheelEvent,
+  type TouchEvent,
+  useEffect,
+  useRef,
+} from 'react';
 
-function Home() {
+function Home({
+  submitCallback,
+}: { submitCallback: Parameters<typeof AddReasonForm>[0]['submitCallback'] }) {
   /**
    * Scroll controller
    *
@@ -19,13 +27,30 @@ function Home() {
     setScrollPos(100);
   };
 
-  const handleScroll = (e: WheelEvent<HTMLDivElement>) => {
-    handleScrollPos(e.deltaY);
-  };
-  const handleTouch = (e: TouchEvent<HTMLDivElement>) => {
-    console.log('[Home] touched: ', e);
+  const lastTouchY = useRef<number | null>(null);
+
+  const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length > 0) {
+      lastTouchY.current = e.touches[0].clientY;
+    }
   };
 
+  const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
+    // Only process if a touch started and we have a last recorded position
+    if (e.touches.length > 0 && lastTouchY.current !== null) {
+      const currentTouchY = e.touches[0].clientY;
+      const deltaY = currentTouchY - lastTouchY.current;
+
+      // handleScrollPos(deltaY * -1);
+      handleScrollDelta(deltaY * -1, 1);
+
+      lastTouchY.current = currentTouchY;
+    }
+  };
+
+  /**
+   * @deprecated
+   */
   const handleScrollPos = (change: number) => {
     const scrollScale = 5;
     switch (Math.sign(change)) {
@@ -50,6 +75,16 @@ function Home() {
         break;
       }
     }
+  };
+
+  const handleScrollDelta = (delta: number, sensitivity = 0.06) => {
+
+    const changeAmount = delta * sensitivity;
+
+    setScrollPos((prevPos) => {
+      const newPos = prevPos - changeAmount;
+      return Math.max(0, Math.min(100, newPos)); // clamp the value between 0 and 100
+    });
   };
 
   /**
@@ -92,7 +127,7 @@ function Home() {
    * Starts at 0px, adds (scrollPos / 100) * (-96 - 0)px = -0.96 * scrollPos px
    * Total pixel offset: -0.96 * scrollPos px
    */
-  const titlePosition = `calc(${2 + 0.48 * scrollPos}% - ${0.96 * scrollPos}px)`;
+  const titlePosition = `calc(${2 + 0.48 * scrollPos}% - ${1.5 * scrollPos}px)`;
 
   /**
    * Calculate the blur amount based on scrollPos using linear interpolation.
@@ -123,8 +158,14 @@ function Home() {
           pointerEvents:
             scrollPos === 0 && allowGlobeInteraction ? 'none' : 'auto',
         }}
-        onWheel={handleScroll}
-        onTouchMove={handleTouch}
+        onWheel={(e: WheelEvent<HTMLDivElement>) => {
+          handleScrollDelta(e.deltaY);
+        }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={() => {
+          lastTouchY.current = null;
+        }}
       >
         <h1
           data-testid="home-title"
@@ -141,9 +182,7 @@ function Home() {
             display: scrollPos > 0 ? 'initial' : 'none',
           }}
         >
-          <AddReasonForm
-            submitCallback={async (values) => console.log(values)}
-          />
+          <AddReasonForm submitCallback={submitCallback} />
         </div>
         <style>{scrollAnimationKeyframes}</style>
         <p
