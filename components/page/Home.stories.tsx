@@ -8,6 +8,12 @@ const meta: Meta<typeof Home> = {
 
 type Story = StoryObj<typeof Home>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  args: {
+    submitCallback: async (values) => {
+      console.log('[stories/Home] submitCallback got values: ', values);
+    },
+  },
+};
 
 export default meta;
