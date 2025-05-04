@@ -168,6 +168,7 @@ function AddReasonForm({
                   <Textarea
                     placeholder="Tell the world..."
                     rows={2}
+                    maxChars={300}
                     {...field}
                     onBlur={() => {
                       form.clearErrors('message');
