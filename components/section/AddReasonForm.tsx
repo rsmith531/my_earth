@@ -176,6 +176,19 @@ function AddReasonForm({
                     onFocus={focusHandler}
                     style={{ resize: 'none' }}
                     className="border-3 border-slate-700 hover:border-slate-700/90 bg-slate-200"
+                    // prevent interaction in the textarea from bubbling up to the scrollPos handler in <Home />
+                    onWheel={(e) => {
+                      e.stopPropagation();
+                    }}
+                    onTouchStart={(e) => {
+                      e.stopPropagation();
+                    }}
+                    onTouchMove={(e) => {
+                      e.stopPropagation();
+                    }}
+                    onTouchEnd={(e) => {
+                      e.stopPropagation();
+                    }}
                   />
                 </FormControl>
                 <FormMessage
