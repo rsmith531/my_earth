@@ -99,10 +99,10 @@ function Globe({ interactive }: { interactive: boolean }) {
   useEffect(() => {
     Promise.all([
       new TextureLoader().loadAsync(
-        '//cdn.jsdelivr.net/npm/three-globe/example/img/earth-day.jpg',
+        '/earth-day.jpg',
       ),
       new TextureLoader().loadAsync(
-        '//cdn.jsdelivr.net/npm/three-globe/example/img/earth-night.jpg',
+        '/earth-night.jpg',
       ),
     ]).then(([dayTexture, nightTexture]) => {
       setGlobeMaterial(
