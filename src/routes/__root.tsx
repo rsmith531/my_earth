@@ -5,7 +5,7 @@ import { Toaster } from '@components/ui/sonner';
 export const Route = createRootRoute({
   component: () => (
     <>
-      <Toaster richColors expand visibleToasts={9} />
+      <Toaster richColors visibleToasts={9} />
       <Outlet />
       <TanStackRouterDevtools />
     </>

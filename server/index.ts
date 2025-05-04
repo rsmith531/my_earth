@@ -1,23 +1,35 @@
 import { Hono } from 'hono';
 import { validator } from 'hono/validator';
 import { validationSchema } from '../components/section/AddReasonForm';
+import { db } from './db/client';
+import { notes } from './db/schema';
+
 const app = new Hono();
 
 const save_note_api = app.post(
   '/save-note',
   validator('json', (value, c) => {
-    console.log('got value', value)
     const parsed = validationSchema.safeParse(value);
     if (!parsed.success) {
-      return c.text('Invalid!', 401);
+      console.error(`[api/save-note ${c.req.method}] request failed validation: `, parsed.error)
+      return c.text('Note submission is invalid', 400);
     }
     return parsed.data;
   }),
-  (c) => {
-    const { message, latitude, longitude } = c.req.valid('json');
-    // save the values to the database
-
-    return c.newResponse(null, 201);
+  async (c) => {
+    const validatedRequest = c.req.valid('json');
+    try {
+      await db.insert(notes).values({
+        ...validatedRequest,
+      });
+    } catch (error) {
+      console.error(
+        `[api/save-note ${c.req.method}] encountered error while inserting note into database: `,
+        error,
+      );
+      return c.newResponse("Could not save note", 500);
+    }
+    return c.newResponse("Note saved", 201);
   },
 );
 

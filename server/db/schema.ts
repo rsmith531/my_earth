@@ -14,12 +14,12 @@ import {
 export const notes = pgTable(
   'notes',
   {
-    latitude: numeric({ precision: 7, scale: 5 }).notNull(),
-    longitude: numeric({ precision: 8, scale: 5 }).notNull(),
+    latitude: numeric<'number'>({ precision: 7, scale: 5 }).notNull(),
+    longitude: numeric<'number'>({ precision: 8, scale: 5 }).notNull(),
     message: text().notNull(),
-    created_at: timestamp().defaultNow().notNull(),
-    updated_at: timestamp(),
-    deleted_at: timestamp(),
+    createdAt: timestamp().defaultNow().notNull(),
+    updatedAt: timestamp(),
+    deletedAt: timestamp(),
     id: uuid().defaultRandom().primaryKey(),
   },
   (table) => [

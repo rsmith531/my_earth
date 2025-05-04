@@ -130,8 +130,13 @@ function AddReasonForm({
       <form
         onSubmit={form.handleSubmit(
           (values) => {
-            submitCallback(values);
-            form.reset();
+            submitCallback(values)
+              .then(() => {
+                form.resetField('message');
+              })
+              .catch(() => {
+                // it's handled
+              });
           },
           (errors) => {
             if (errors.latitude) {

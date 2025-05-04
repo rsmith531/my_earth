@@ -56,8 +56,8 @@ async function main() {
           precision: 100000,
         }),
         message: f.loremIpsum(),
-        updated_at: f.default({ defaultValue: null }),
-        deleted_at: f.default({ defaultValue: null }),
+        updatedAt: f.default({ defaultValue: null }),
+        deletedAt: f.default({ defaultValue: null }),
       },
     },
   }));
