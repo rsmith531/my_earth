@@ -99,10 +99,13 @@ function Globe({ interactive }: { interactive: boolean }) {
   useEffect(() => {
     Promise.all([
       new TextureLoader().loadAsync(
-        '/earth-day.jpg',
+        // '/earth-day.jpg',
+        '/8k_earth_daymap.jpg',
+        // '/8k_earth_normal_map.tif',
       ),
       new TextureLoader().loadAsync(
-        '/earth-night.jpg',
+        // '/earth-night.jpg',
+        '/8k_earth_nightmap.jpg',
       ),
     ]).then(([dayTexture, nightTexture]) => {
       setGlobeMaterial(
@@ -145,7 +148,10 @@ function Globe({ interactive }: { interactive: boolean }) {
         onGlobeClick={() => setAutoSpin(false)}
         globeMaterial={globeMaterial}
         ref={globeEl}
-        backgroundImageUrl="//cdn.jsdelivr.net/npm/three-globe/example/img/night-sky.png"
+        // backgroundImageUrl="//cdn.jsdelivr.net/npm/three-globe/example/img/night-sky.png"
+        // backgroundImageUrl="/night-sky.png"
+        backgroundImageUrl="/8k_stars_milky_way.jpg"
+        // backgroundImageUrl="/8k_stars.jpg"
         globeOffset={[0, verticalOffset]}
         backgroundColor="#00000000" // transparent
         onZoom={useCallback(
