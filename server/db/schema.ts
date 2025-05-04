@@ -15,7 +15,7 @@ export const notes = pgTable(
   'notes',
   {
     latitude: numeric({ precision: 7, scale: 5 }).notNull(),
-    longitude: numeric({ precision: 7, scale: 5 }).notNull(),
+    longitude: numeric({ precision: 8, scale: 5 }).notNull(),
     message: text().notNull(),
     created_at: timestamp().defaultNow().notNull(),
     updated_at: timestamp(),
