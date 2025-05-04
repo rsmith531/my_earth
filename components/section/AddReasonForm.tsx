@@ -17,7 +17,7 @@ import { Input } from '@components/ui/input';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-const validationSchema = z.object({
+export const validationSchema = z.object({
   message: z.string().min(1).max(300).trim(),
   latitude: z
     .number({
