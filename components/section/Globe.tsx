@@ -113,13 +113,13 @@ function Globe({
   useEffect(() => {
     Promise.all([
       new TextureLoader().loadAsync(
-        // '/earth-day.jpg',
-        '/8k_earth_daymap.jpg',
-        // '/8k_earth_normal_map.tif',
+        // '/textures/earth/earth-day.jpg',
+        '/textures/earth/8k_earth_daymap.jpg',
+        // '/textures/earth/8k_earth_normal_map.tif',
       ),
       new TextureLoader().loadAsync(
-        // '/earth-night.jpg',
-        '/8k_earth_nightmap.jpg',
+        // '/textures/earth/earth-night.jpg',
+        '/textures/earth/8k_earth_nightmap.jpg',
       ),
     ]).then(([dayTexture, nightTexture]) => {
       setGlobeMaterial(
@@ -163,9 +163,9 @@ function Globe({
         globeMaterial={globeMaterial}
         ref={globeEl}
         // backgroundImageUrl="//cdn.jsdelivr.net/npm/three-globe/example/img/night-sky.png"
-        // backgroundImageUrl="/night-sky.png"
-        backgroundImageUrl="/8k_stars_milky_way.jpg"
-        // backgroundImageUrl="/8k_stars.jpg"
+        // backgroundImageUrl="/textures/skybox/night-sky.png"
+        backgroundImageUrl="/textures/skybox/8k_stars_milky_way.jpg"
+        // backgroundImageUrl="/textures/skybox/8k_stars.jpg"
         globeOffset={[0, verticalOffset]}
         backgroundColor="#00000000" // transparent
         onZoom={useCallback(
