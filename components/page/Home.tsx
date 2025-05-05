@@ -13,7 +13,11 @@ import {
 
 function Home({
   submitCallback,
-}: { submitCallback: Parameters<typeof AddReasonForm>[0]['submitCallback'] }) {
+  notes
+}: {
+  submitCallback: Parameters<typeof AddReasonForm>[0]['submitCallback'];
+  notes: Parameters<typeof Globe>[0]['data'];
+}) {
   /**
    * Scroll controller
    *
@@ -228,7 +232,7 @@ function Home({
         </p>
       </div>
       <div id="home-globe" className="absolute flex inset-0 z-0">
-        <Globe interactive={allowGlobeInteraction} />
+        <Globe interactive={allowGlobeInteraction} data={notes} />
         <Button
           style={{
             position: 'absolute',

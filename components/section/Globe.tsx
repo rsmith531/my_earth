@@ -7,10 +7,18 @@ import * as solar from 'solar-calculator';
 // https://thenewstack.io/recreating-shopifys-bfcm-globe-using-react-globe-gl/
 // day/night cycle code: https://github.com/vasturiano/react-globe.gl/blob/master/example/day-night-cycle/index.html
 
-function Globe({ interactive }: { interactive: boolean }) {
+function Globe({
+  interactive,
+  data,
+}: {
+  interactive: boolean;
+  data?: { message: string; longitude: number; latitude: number }[];
+}) {
   const globeEl = useRef<GlobeMethods | undefined>(undefined);
   const [autoSpin, setAutoSpin] = useState<boolean>(true);
-  const [verticalOffset, setVerticalOffset] = useState<number>(0);
+  const [verticalOffset, setVerticalOffset] = useState<number>(
+    interactive ? 0 : 500,
+  );
   const [globeMaterial, setGlobeMaterial] = useState<ShaderMaterial>();
 
   /**
@@ -22,6 +30,7 @@ function Globe({ interactive }: { interactive: boolean }) {
     globeEl.current.controls().autoRotateSpeed = 0.1;
   }, [autoSpin]);
 
+  const isInitialMount = useRef(true);
   /**
    * makes the globe start spinning again when the view is reset
    */
@@ -30,7 +39,12 @@ function Globe({ interactive }: { interactive: boolean }) {
       setAutoSpin(true);
       globeEl?.current?.pointOfView({ altitude: 2 }, 1000);
     }
-    toggleVerticalOffset();
+
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    } else {
+      toggleVerticalOffset();
+    }
   }, [interactive]);
 
   const animationFrameId = useRef<number | null>(null);
@@ -46,8 +60,8 @@ function Globe({ interactive }: { interactive: boolean }) {
       cancelAnimationFrame(animationFrameId.current);
     }
 
-    const startPos = verticalOffset;
-    const endPos = verticalOffset === 0 ? 500 : 0;
+    const startPos = interactive ? 500 : 0;
+    const endPos = interactive ? 0 : 500;
     const startTime = performance.now();
 
     const animateScroll = (currentTime: number) => {
@@ -159,6 +173,43 @@ function Globe({ interactive }: { interactive: boolean }) {
             globeMaterial?.uniforms.globeRotation.value.set(lng, lat),
           [globeMaterial],
         )}
+        // html elements
+        htmlElementsData={data ?? undefined}
+        htmlLat={
+          data
+            ? (d) => {
+                // @ts-expect-error don't worry, this library just has bad typing
+                return d.latitude;
+              }
+            : undefined
+        }
+        htmlLng={
+          data
+            ? (d) => {
+                // @ts-expect-error don't worry, this library just has bad typing
+                return d.longitude;
+              }
+            : undefined
+        }
+        htmlElement={
+          data
+            ? (d): HTMLElement => {
+                const element = document.createElement('div');
+                // @ts-expect-error don't worry, this library just has bad typing
+                element.textContent = d.message;
+                element.style.textAlign = 'center';
+                element.style.color = 'var(--color-slate-700)';
+                element.style.maxWidth = '300px';
+                element.style.backgroundColor = 'var(--color-slate-200)';
+                element.style.borderRadius = '10px';
+                element.style.padding = '0.25rem';
+                element.style.borderColor = 'var(--color-slate-700)';
+                element.style.borderWidth = '3px';
+                element.style.opacity = '0.8';
+                return element;
+              }
+            : undefined
+        }
       />
     </div>
   );

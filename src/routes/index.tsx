@@ -5,7 +5,19 @@ import { toast } from 'sonner';
 
 export const Route = createFileRoute('/')({
   component: HomePage,
+  loader: () => fetchNotes(),
 });
+
+const fetchNotes = async () => {
+  const response = await fetch('http://localhost:3001/save-note', {
+    method: 'get',
+  });
+  let responseBody = [];
+  if (!response.bodyUsed) {
+    responseBody = await response.json();
+  }
+  return responseBody;
+};
 
 function HomePage() {
   const submissionCallback: Parameters<typeof Home>[0]['submitCallback'] =
@@ -59,5 +71,7 @@ function HomePage() {
       }
     };
 
-  return <Home submitCallback={submissionCallback} />;
+  return (
+    <Home submitCallback={submissionCallback} notes={Route.useLoaderData()} />
+  );
 }

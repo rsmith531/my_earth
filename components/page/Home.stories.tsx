@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Home } from './Home';
+import { demoNotes } from '../../.storybook/demoData';
 
 const meta: Meta<typeof Home> = {
   component: Home,
@@ -13,6 +14,7 @@ export const Default: Story = {
     submitCallback: async (values) => {
       console.log('[stories/Home] submitCallback got values: ', values);
     },
+    notes: demoNotes
   },
 };
 
