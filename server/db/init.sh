@@ -79,7 +79,7 @@ if command_exists docker; then
   else
     echo "Container 'my_earth_db' not found. Running a new container."
 
-    docker run --name my_earth_db -e POSTGRES_PASSWORD=YoullNeverGuessThisOne -p 5431:5432 -d postgres
+    docker run --name my_earth_db -e POSTGRES_PASSWORD=YoullNeverGuessThisOne -p 5431:5432 -d postgis/postgis
 
     # Check the exit status of the docker run command
     if [ $? -ne 0 ]; then
@@ -94,17 +94,17 @@ if command_exists docker; then
 
   # --- Wait for the database server to be ready ---
   echo ""
-  echo "Waiting for the PostgreSQL server to be ready..."
+  echo "Waiting for the PostgreSQL server to be ready."
 
   until docker exec my_earth_db pg_isready -U postgres > /dev/null 2>&1; do
-    echo -n "." # Print a dot while waiting
-    sleep 1
+    echo "."
+    sleep 0.5
   done
 
   echo ""
   echo "PostgreSQL server is ready."
 
-  # --- Create the 'my_earth_db' database inside the container ---
+  # # --- Create the 'my_earth_db' database inside the container ---
   echo ""
   echo "Attempting to create the 'my_earth_db' database inside the container..."
 
@@ -114,12 +114,16 @@ if command_exists docker; then
   # || true: This prevents the script from exiting if the database already exists (psql returns non-zero)
   docker exec my_earth_db psql -U postgres -c "CREATE DATABASE my_earth_db;" || true
 
-  # Check if the database creation command had a critical failure (excluding "already exists")
-  # A simple check is difficult here without more complex psql output parsing,
-  # but the '|| true' handles the most common "already exists" case.
-  # For more robust checking, you might inspect container logs or query the database.
   echo "Database creation command executed. Check container logs for details if needed."
 
+  # # --- Activate the PostGIS extension in the new database ---
+  echo ""
+  echo "Attempting to activate the PostGIS extension in the 'my_earth_db' database..."
+
+  # Execute psql inside the container to create the postgis extension in the 'my_earth_db' database
+  docker exec my_earth_db psql -d my_earth_db -U postgres -c "CREATE EXTENSION postgis;" || true
+
+  echo "PostGIS extension activation command executed. Check container logs for details if needed."
 
 else
   echo "Skipping PostgreSQL container run because the docker command is not available."
