@@ -46,10 +46,10 @@ async function main() {
         // TODO: use weighted random to make most of the lat longs happen in U.S.A. and Europe
         // https://orm.drizzle.team/docs/seed-overview#weighted-random
         location: f.point({
-          minXValue: -90,
-          maxXValue: 90,
-          minYValue: -180,
-          maxYValue: 180,
+          minYValue: -90,
+          maxYValue: 90,
+          minXValue: -180,
+          maxXValue: 180,
         }),
         message: f.loremIpsum(),
         updatedAt: f.default({ defaultValue: null }),
