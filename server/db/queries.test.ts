@@ -1,7 +1,7 @@
 import { notes } from './schema';
 import { db } from './client';
 import { expect, test, describe, beforeAll, afterAll } from 'bun:test';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { getMessagesWithin } from './queries';
 
 /**
@@ -11,30 +11,31 @@ import { getMessagesWithin } from './queries';
  *
  * Craters of the Moon is very far away from those.
  */
-const testData: (typeof notes.$inferInsert)[] = [
-  {
-    message: 'Henry M Jackson Visitor Center',
-    location: { x: 46.785959632325095, y: -121.73644955422306 },
+const testData = {
+  visitorCenter: {
+    message: 'TEST Henry M Jackson Visitor Center',
+    location: { y: 46.785959632325095, x: -121.73644955422306 },
   },
-  {
-    message: 'Mount Rainier',
-    location: { x: 46.852320896423535, y: -121.76032947806137 },
+  mountRainier: {
+    message: 'TEST Mount Rainier',
+    location: { y: 46.852320896423535, x: -121.76032947806137 },
   },
-  {
-    message: 'McClure Rock',
-    location: { x: 46.808469845235116, y: -121.7231556752573 },
+  mcclureRock: {
+    message: 'TEST McClure Rock',
+    location: { y: 46.808469845235116, x: -121.7231556752573 },
   },
-  {
-    message: 'Craters of the Moon',
-    location: { x: 43.46200993178054, y: -113.56180734978187 },
+  // it's in Idaho
+  cratersOfTheMoon: {
+    message: 'TEST Craters of the Moon',
+    location: { y: 43.46200993178054, x: -113.56180734978187 },
   },
-];
+} satisfies Record<string, typeof notes.$inferInsert>;
 
 describe('the getMessagesWithin function', () => {
   beforeAll(async () => {
     try {
       console.log('[test/queries] getting set up for tests');
-      await db.insert(notes).values(testData);
+      await db.insert(notes).values(Object.values(testData));
     } catch (e) {
       console.error(
         '[test/queries] error inserting test data into database: ',
@@ -47,8 +48,13 @@ describe('the getMessagesWithin function', () => {
       console.log('[test/queries] cleaning up after tests');
 
       await Promise.all(
-        testData.map((point) => {
-          db.delete(notes).where(eq(notes.message, point.message));
+        Object.values(testData).map((point) => {
+          // TODO: figure out why using return deletes the rows but hangs the
+          // script, and not using return does not delete the rows but does not
+          // hang the script
+          db.delete(notes)
+            .where(eq(notes.message, point.message))
+            .returning({ message: notes.message });
         }),
       );
     } catch (e) {
@@ -59,12 +65,21 @@ describe('the getMessagesWithin function', () => {
     }
   });
   test('should retrieve locations within a given distance', async () => {
-    // @ts-expect-error it's there, I promise
-    const results = await getMessagesWithin(6000, testData[0].location, 5000);
+    // find the distance in meters between the start point and the furthest expected point
+    const distance = await db.execute(
+      sql`SELECT ST_Distance(ST_SetSRID(ST_MakePoint(${testData.visitorCenter.location.x}, ${testData.visitorCenter.location.y}), 4326)::geography, ST_SetSRID(ST_MakePoint(${testData.mountRainier.location.x}, ${testData.mountRainier.location.y}), 4326)::geography)`,
+    );
 
-    console.log('[test/queries] results are', results);
-    expect(results).toContainEqual(testData[1]);
-    expect(results).toContainEqual(testData[2]);
-    expect(results).not.toContainEqual(testData[3]);
+    const results = await getMessagesWithin(
+      typeof distance[0]?.st_distance === 'number'
+        ? distance[0]?.st_distance + 1
+        : 0,
+      testData.visitorCenter.location,
+      5000,
+    );
+
+    expect(results).toContainEqual(testData.mountRainier);
+    expect(results).toContainEqual(testData.mcclureRock);
+    expect(results).not.toContainEqual(testData.cratersOfTheMoon);
   });
 });
