@@ -4,13 +4,14 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "bash -c \"./db/init.sh\" && bun --watch index.ts",
+    "start": "bun run db-start && bun --watch index.ts",
     "dev": "concurrently \"bun run start\" \"bun run db-studio\"",
     "setup-dev": "create and seed the db",
-    "db-create": "bash -c \"./db/init.sh\" && bunx drizzle-kit generate --config \"db/drizzle.config.ts\" && bunx drizzle-kit push --config \"db/drizzle.config.ts\"",
+    "db-start": "bash -c \"./db/init.sh\"",
+    "db-create": "bun run db-start && bunx drizzle-kit generate --config \"db/drizzle.config.ts\" && bunx drizzle-kit push --config \"db/drizzle.config.ts\"",
     "db-reset": "docker rm -f my_earth_db || true && bun run db-create && bun run db-seed",
     "db-seed": "bun 'db/seed.ts'",
-    "db-studio": "bunx drizzle-kit studio --config \"db/drizzle.config.ts\""
+    "db-studio": " bun run db-start && bunx drizzle-kit studio --config \"db/drizzle.config.ts\""
   },
   "devDependencies": {
     "@types/bun": "latest",
