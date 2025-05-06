@@ -45,16 +45,7 @@ async function main() {
       columns: {
         // TODO: use weighted random to make most of the lat longs happen in U.S.A. and Europe
         // https://orm.drizzle.team/docs/seed-overview#weighted-random
-        latitude: f.number({
-          minValue: -90,
-          maxValue: 90,
-          precision: 100000,
-        }),
-        longitude: f.number({
-          minValue: -180,
-          maxValue: 180,
-          precision: 100000,
-        }),
+        location: f.point(),
         message: f.loremIpsum(),
         updatedAt: f.default({ defaultValue: null }),
         deletedAt: f.default({ defaultValue: null }),

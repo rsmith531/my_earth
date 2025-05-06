@@ -9,13 +9,14 @@ import {
   text,
   check,
   pgPolicy,
+  geometry,
+  index,
 } from 'drizzle-orm/pg-core';
 
 export const notes = pgTable(
   'notes',
   {
-    latitude: numeric<'number'>({ precision: 7, scale: 5 }).notNull(),
-    longitude: numeric<'number'>({ precision: 8, scale: 5 }).notNull(),
+    location: geometry('location', { type: 'point', srid: 4326, mode: 'xy' }).notNull(),
     message: text().notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
       .defaultNow()
@@ -25,15 +26,8 @@ export const notes = pgTable(
     id: uuid().defaultRandom().primaryKey(),
   },
   (table) => [
+    index('location_index').using('gist', table.location),
     check('300_char_messages', sql`length(${table.message}) <= 300`),
-    check(
-      'valid_latitude',
-      sql`${table.latitude} >= -90 AND ${table.latitude} <= 90`,
-    ),
-    check(
-      'valid_longitude',
-      sql`${table.longitude} >= -180 AND ${table.longitude} <= 180`,
-    ),
     pgPolicy('public_insert', {
       as: 'permissive',
       to: 'public',
