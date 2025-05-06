@@ -5,18 +5,24 @@ import {
   pgTable,
   uuid,
   timestamp,
-  numeric,
   text,
   check,
   pgPolicy,
   geometry,
   index,
+  pgRole,
 } from 'drizzle-orm/pg-core';
+
+export const testRole = pgRole('test_role');
 
 export const notes = pgTable(
   'notes',
   {
-    location: geometry('location', { type: 'point', srid: 4326, mode: 'xy' }).notNull(),
+    location: geometry('location', {
+      type: 'point',
+      srid: 4326,
+      mode: 'xy',
+    }).notNull(),
     message: text().notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
       .defaultNow()
@@ -37,6 +43,11 @@ export const notes = pgTable(
       as: 'permissive',
       to: 'public',
       for: 'select',
+    }),
+    pgPolicy('tester_all', {
+      as: 'permissive',
+      to: testRole,
+      for: 'all',
     }),
     // no policies for delete and update because I don't want that to be allowed
     // yet
