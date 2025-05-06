@@ -17,9 +17,11 @@ export const notes = pgTable(
     latitude: numeric<'number'>({ precision: 7, scale: 5 }).notNull(),
     longitude: numeric<'number'>({ precision: 8, scale: 5 }).notNull(),
     message: text().notNull(),
-    createdAt: timestamp().defaultNow().notNull(),
-    updatedAt: timestamp(),
-    deletedAt: timestamp(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' }),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'date' }),
     id: uuid().defaultRandom().primaryKey(),
   },
   (table) => [
