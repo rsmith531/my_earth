@@ -43,13 +43,15 @@ const fetchNotes = async (params: {
 function HomePage() {
   const submissionCallback: Parameters<typeof Home>[0]['submitCallback'] =
     async (values) => {
-      const response = await fetch('http://localhost:3001/save-note', {
-        method: 'post',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...values,
-        }),
-      });
+      const response = await honoClient()['save-note'].$post(
+        { json: { ...values } },
+        { headers: { 'Content-Type': 'application/json' } },
+      );
+      const body = await response.json();
+
+      console.log(
+        `[index/submissionCallback] post request returned ${response.status} with body "${JSON.stringify(body)}"`,
+      );
       if (response.ok) {
         toast.success('We saved your note. Thanks for sharing!');
       } else {
@@ -81,12 +83,8 @@ function HomePage() {
             },
           );
         }
-        let responseErrorMessage = '';
-        if (!response.bodyUsed) {
-          responseErrorMessage = await response.text();
-        }
         throw new Error(
-          `[index/submissionCallback] error received from response: ${responseErrorMessage}`,
+          `[index/submissionCallback] error received from response: ${JSON.stringify(body)}`,
         );
       }
     };
