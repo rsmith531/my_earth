@@ -3,6 +3,7 @@ import UnderGlobe, { type GlobeMethods } from 'react-globe.gl';
 import { TextureLoader, ShaderMaterial, Vector2 } from 'three';
 // @ts-expect-error no type :(
 import * as solar from 'solar-calculator';
+import { convertGRUsToMeters } from '@lib/utils';
 
 // https://thenewstack.io/recreating-shopifys-bfcm-globe-using-react-globe-gl/
 // day/night cycle code: https://github.com/vasturiano/react-globe.gl/blob/master/example/day-night-cycle/index.html
@@ -10,9 +11,21 @@ import * as solar from 'solar-calculator';
 function Globe({
   interactive,
   data,
+  reportViewpoint,
 }: {
   interactive: boolean;
   data?: { message: string; longitude: number; latitude: number }[];
+  reportViewpoint: ({
+    fov,
+    altitude,
+    latitude,
+    longitude,
+  }: {
+    fov: number;
+    altitude: number;
+    latitude: number;
+    longitude: number;
+  }) => void;
 }) {
   const globeEl = useRef<GlobeMethods | undefined>(undefined);
   const [autoSpin, setAutoSpin] = useState<boolean>(true);
@@ -136,6 +149,35 @@ function Globe({
       );
     });
   }, []);
+
+  useEffect(() => {
+    const globe = globeEl.current;
+    if (!globe) return;
+
+    const handleViewpointChange = () => {
+      const pov = globe.pointOfView();
+      console.log(globe.camera());
+      reportViewpoint({
+        // @ts-expect-error due to type inconsistency of library, it is typed as
+        // a Camera but is actually a PerspectiveCamera. Run
+        // console.log(globeEl.current.camera()) to see for yourself.
+        //
+        // References:
+        // https://threejs.org/docs/#api/en/cameras/PerspectiveCamera.fov
+        // https://github.com/vasturiano/react-globe.gl?tab=readme-ov-file#render-control
+        fov: globe.camera().fov,
+        altitude: convertGRUsToMeters(pov.altitude, globe.getGlobeRadius()),
+        latitude: pov.lat,
+        longitude: pov.lng,
+      });
+    };
+
+    globe.controls().addEventListener('change', handleViewpointChange);
+
+    return globe
+      .controls()
+      .removeEventListener('change', handleViewpointChange);
+  }, [globeEl, reportViewpoint]);
 
   /**
    * Updates the globe material's sun position uniform on an interval.

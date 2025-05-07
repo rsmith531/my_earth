@@ -13,9 +13,11 @@ import {
 
 function Home({
   submitCallback,
-  notes
+  reportGlobeViewpoint,
+  notes,
 }: {
   submitCallback: Parameters<typeof AddReasonForm>[0]['submitCallback'];
+  reportGlobeViewpoint: Parameters<typeof Globe>[0]['reportViewpoint'];
   notes: Parameters<typeof Globe>[0]['data'];
 }) {
   /**
@@ -232,7 +234,11 @@ function Home({
         </p>
       </div>
       <div id="home-globe" className="absolute flex inset-0 z-0">
-        <Globe interactive={allowGlobeInteraction} data={notes} />
+        <Globe
+          interactive={allowGlobeInteraction}
+          data={notes}
+          reportViewpoint={reportGlobeViewpoint}
+        />
         <Button
           style={{
             position: 'absolute',

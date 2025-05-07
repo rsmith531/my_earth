@@ -1,13 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { Home } from '@components/page/Home';
-import type { SaveNoteRequest } from 'server';
 import { toast } from 'sonner';
+import { useState } from 'react';
+import type { Globe } from '@components/section/Globe';
 
 export const Route = createFileRoute('/')({
   component: HomePage,
   loader: () => fetchNotes(),
 });
 
+// TODO: us hc or trpc to get api types
 const fetchNotes = async () => {
   const response = await fetch('http://localhost:3001/save-note', {
     method: 'get',
@@ -22,7 +24,6 @@ const fetchNotes = async () => {
 function HomePage() {
   const submissionCallback: Parameters<typeof Home>[0]['submitCallback'] =
     async (values) => {
-      // TODO: ensure values matches SaveNoteRequest
       const response = await fetch('http://localhost:3001/save-note', {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
@@ -71,7 +72,20 @@ function HomePage() {
       }
     };
 
+  const [cameraView, setCameraView] =
+    useState<Parameters<Parameters<typeof Globe>[0]['reportViewpoint']>[0]>();
+
+  const handleCameraReport: Parameters<typeof Globe>[0]['reportViewpoint'] = (
+    values,
+  ) => {
+    setCameraView((prevState) => ({ ...prevState, ...values }));
+  };
+
   return (
-    <Home submitCallback={submissionCallback} notes={Route.useLoaderData()} />
+    <Home
+      submitCallback={submissionCallback}
+      notes={Route.useLoaderData()}
+      reportGlobeViewpoint={handleCameraReport}
+    />
   );
 }

@@ -4,6 +4,10 @@ import { demoNotes } from '../../.storybook/demoData';
 
 const meta: Meta<typeof Globe> = {
   component: Globe,
+  args: {
+    reportViewpoint: (values) =>
+      console.log('[stories/Globe] reportViewpoint got values: ', values),
+  },
 };
 
 type Story = StoryObj<typeof Globe>;
