@@ -3,6 +3,7 @@ import { Home } from '@components/page/Home';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import type { Globe } from '@components/section/Globe';
+import { honoClient } from '@lib/utils';
 
 export const Route = createFileRoute('/')({
   component: HomePage,
@@ -10,36 +11,33 @@ export const Route = createFileRoute('/')({
     fetchNotes({ fov: 50, altitude: 160000, latitude: 0, longitude: 0 }),
 });
 
-// TODO: use hc or trpc to get api types
 const fetchNotes = async (params: {
   fov: number;
   altitude: number;
   latitude: number;
   longitude: number;
 }): Promise<Parameters<typeof Home>[0]['notes']> => {
-  const url = new URL('http://localhost:3001/save-note');
-  const queryParams = new URLSearchParams();
+  const response = await (
+    await honoClient()['save-note'].$get({
+      query: {
+        altitude: params.altitude.toString(),
+        fieldOfView: params.fov.toString(),
+        latitude: params.latitude.toString(),
+        longitude: params.longitude.toString(),
+      },
+    })
+  ).json();
 
-  queryParams.append('latitude', params.latitude.toString());
-  queryParams.append('longitude', params.longitude.toString());
-  queryParams.append('altitude', params.altitude.toString());
-  queryParams.append('fieldOfView', params.fov.toString());
-
-  url.search = queryParams.toString();
-
-  const response = await fetch(url.toString(), {
-    method: 'get',
-  });
-  let responseBody = [];
-  if (!response.bodyUsed) {
-    responseBody = await response.json();
+  if (Array.isArray(response)) {
+    return response.map((result) => {
+      return {
+        message: result.message,
+        latitude: result.location.y,
+        longitude: result.location.x,
+      };
+    });
   }
-
-  const results: Parameters<typeof Home>[0]['notes'] = responseBody.map((result) => {
-    return {message: result.message, latitude: result.location.y, longitude: result.location.x}
-  }) 
-  
-  return results;
+  throw new Error(response.error);
 };
 
 function HomePage() {
@@ -99,7 +97,10 @@ function HomePage() {
   const handleCameraReport: Parameters<typeof Globe>[0]['reportViewpoint'] = (
     values,
   ) => {
-    // setCameraView((prevState) => ({ ...prevState, ...values }));
+    // debounce the processing by about .5-1 second
+    // check if lat/lng changed by +/- 2 degrees,
+    // check if altitude changed by +/- 10000 meters
+    // if either of those things happened, call fetchNotes()
   };
 
   return (
