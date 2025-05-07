@@ -48,7 +48,8 @@ const app = new Hono()
     zValidator(
       'query',
       z.object({
-        altitude: z.coerce.number(),
+        altitude: z.coerce.number().positive(), // in meters
+        fieldOfView: z.coerce.number().positive(), // in degrees
         // https://github.com/colinhacks/zod/issues/2600#issuecomment-2595407919
         latitude: z
           .string()
@@ -66,9 +67,9 @@ const app = new Hono()
         if (!value.success) {
           value.error.errors.map((problem) => {
             console.error(
-              `[api/save-note ${c.req.method}] ${problem.path[0]} parameter failed validation: ${problem.message}`
+              `[api/save-note ${c.req.method}] ${problem.path[0]} parameter failed validation: ${problem.message}`,
             );
-          })
+          });
           return c.json({ error: 'invalid' }, 400);
         }
       },
@@ -98,5 +99,5 @@ Bun.serve({
   port: 3001,
 });
 
-export default app;
+export { app as dbServer };
 export type AppType = typeof app;

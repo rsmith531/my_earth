@@ -1,7 +1,7 @@
 // server\index.test.ts
 
 import { testClient } from 'hono/testing';
-import dbserver from './index';
+import {dbServer} from './index';
 import { expect, test, describe, beforeAll, mock, afterAll } from 'bun:test';
 
 describe('The notes endpoint', () => {
@@ -17,10 +17,11 @@ describe('The notes endpoint', () => {
   afterAll(() => {
     global.console = realConsole;
   });
-  const client = testClient(dbserver);
+  const client = testClient(dbServer);
 
   const getParams = {
     altitude: '4',
+    fieldOfView: '50',
     latitude: '41.15611',
     longitude: '-81.41418',
   };
