@@ -1,3 +1,5 @@
+// components\section\Globe.tsx
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 import UnderGlobe, { type GlobeMethods } from 'react-globe.gl';
 import { TextureLoader, ShaderMaterial, Vector2 } from 'three';
@@ -156,7 +158,6 @@ function Globe({
 
     const handleViewpointChange = () => {
       const pov = globe.pointOfView();
-      console.log(globe.camera());
       reportViewpoint({
         // @ts-expect-error due to type inconsistency of library, it is typed as
         // a Camera but is actually a PerspectiveCamera. Run
@@ -174,10 +175,12 @@ function Globe({
 
     globe.controls().addEventListener('change', handleViewpointChange);
 
-    return globe
-      .controls()
-      .removeEventListener('change', handleViewpointChange);
-  }, [globeEl, reportViewpoint]);
+    handleViewpointChange();
+
+    return () => {
+      globe.controls().removeEventListener('change', handleViewpointChange);
+    };
+  }, [reportViewpoint]);
 
   /**
    * Updates the globe material's sun position uniform on an interval.

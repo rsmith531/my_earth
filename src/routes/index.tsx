@@ -6,19 +6,40 @@ import type { Globe } from '@components/section/Globe';
 
 export const Route = createFileRoute('/')({
   component: HomePage,
-  loader: () => fetchNotes(),
+  loader: () =>
+    fetchNotes({ fov: 50, altitude: 160000, latitude: 0, longitude: 0 }),
 });
 
-// TODO: us hc or trpc to get api types
-const fetchNotes = async () => {
-  const response = await fetch('http://localhost:3001/save-note', {
+// TODO: use hc or trpc to get api types
+const fetchNotes = async (params: {
+  fov: number;
+  altitude: number;
+  latitude: number;
+  longitude: number;
+}): Promise<Parameters<typeof Home>[0]['notes']> => {
+  const url = new URL('http://localhost:3001/save-note');
+  const queryParams = new URLSearchParams();
+
+  queryParams.append('latitude', params.latitude.toString());
+  queryParams.append('longitude', params.longitude.toString());
+  queryParams.append('altitude', params.altitude.toString());
+  queryParams.append('fieldOfView', params.fov.toString());
+
+  url.search = queryParams.toString();
+
+  const response = await fetch(url.toString(), {
     method: 'get',
   });
   let responseBody = [];
   if (!response.bodyUsed) {
     responseBody = await response.json();
   }
-  return responseBody;
+
+  const results: Parameters<typeof Home>[0]['notes'] = responseBody.map((result) => {
+    return {message: result.message, latitude: result.location.y, longitude: result.location.x}
+  }) 
+  
+  return results;
 };
 
 function HomePage() {
@@ -78,7 +99,7 @@ function HomePage() {
   const handleCameraReport: Parameters<typeof Globe>[0]['reportViewpoint'] = (
     values,
   ) => {
-    setCameraView((prevState) => ({ ...prevState, ...values }));
+    // setCameraView((prevState) => ({ ...prevState, ...values }));
   };
 
   return (
