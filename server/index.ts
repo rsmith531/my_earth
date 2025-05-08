@@ -6,8 +6,9 @@ import { zValidator } from '@hono/zod-validator';
 import { validationSchema } from '../components/section/AddReasonForm';
 import { db } from './db/client';
 import { notes } from './db/schema';
-import { isNull } from 'drizzle-orm';
 import { z } from 'zod';
+import { getVisibleRadius } from './utils';
+import { getMessagesWithin } from './db/queries';
 
 const app = new Hono()
   .post(
@@ -77,11 +78,26 @@ const app = new Hono()
     async (c) => {
       const params = c.req.valid('query');
       try {
-        const results = await db
-          .select()
-          .from(notes)
-          .where(isNull(notes.deletedAt))
-          .limit(params.results ?? 20);
+        // the arc length calculated from 90 degrees and the radius of the earth
+        const radiusFromViewpointToHorizon = 10018754;
+        const radius = Number(
+          await getVisibleRadius(
+            String(params.altitude),
+            String(params.fieldOfView),
+          ),
+        );
+
+        const results = await getMessagesWithin(
+          // if the camera can see beyond the horizon, just use the horizon
+          radius <= radiusFromViewpointToHorizon
+            ? radius
+            : radiusFromViewpointToHorizon,
+          {
+            x: Number(params.longitude),
+            y: Number(params.latitude),
+          },
+          50,
+        );
 
         return c.json(results, 200);
       } catch (error) {
