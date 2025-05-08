@@ -167,7 +167,7 @@ function Globe({
         // https://threejs.org/docs/#api/en/cameras/PerspectiveCamera.fov
         // https://github.com/vasturiano/react-globe.gl?tab=readme-ov-file#render-control
         fov: globe.camera().fov,
-        altitude: convertGRUsToMeters(pov.altitude, globe.getGlobeRadius()),
+        altitude: convertGRUsToMeters(globe.camera().position.z, globe.getGlobeRadius()),
         latitude: pov.lat,
         longitude: pov.lng,
       });
