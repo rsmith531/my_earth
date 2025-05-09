@@ -1,14 +1,19 @@
-import { Outlet, createRootRoute } from '@tanstack/react-router';
+import { Outlet, createRootRouteWithContext } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from '@components/ui/sonner';
+import type { QueryClient } from '@tanstack/react-query';
 
 // TODO: add error boundary
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <Toaster richColors visibleToasts={9} />
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
+  {
+    component: () => (
+      <>
+        <Toaster richColors visibleToasts={9} />
+        <Outlet />
+        <ReactQueryDevtools buttonPosition="top-right" />
+        <TanStackRouterDevtools position="bottom-right" />
+      </>
+    ),
+  },
+);
