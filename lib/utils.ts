@@ -18,7 +18,7 @@ export function convertGRUsToMeters(units: number, globeRadius = 100) {
   // https://gscommunitycodes.usf.edu/geoscicommunitycodes/public/geophysics/Gravity/earth_shape.php
   const earthRadiusInMeters = 6378137;
 
-  return units * (earthRadiusInMeters / globeRadius);
+  return units * earthRadiusInMeters;
 }
 
 /**
