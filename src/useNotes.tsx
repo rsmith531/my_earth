@@ -35,6 +35,7 @@ export const notesQueryOptions = (keys: {
       }
       throw new Error(response.error);
     },
+    // https://github.com/TanStack/query/discussions/6460#discussioncomment-7728952
     placeholderData: (prev) => prev,
   });
 
