@@ -35,7 +35,7 @@ export const notesQueryOptions = (keys: {
       }
       throw new Error(response.error);
     },
-    placeholderData: [],
+    placeholderData: (prev) => prev,
   });
 
 export const notesQuery = (keys: Parameters<typeof notesQueryOptions>[0]) =>
