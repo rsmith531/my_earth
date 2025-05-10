@@ -60,7 +60,7 @@ function HomePage() {
    * for every minute change in viewpoint.
    */
   const handleCameraReport = useThrottler(checkAndUpdateViewPoint, {
-    wait: 1000,
+    wait: 500,
     trailing: false,
   });
 
