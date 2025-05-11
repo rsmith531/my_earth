@@ -8,10 +8,11 @@ function Slider({
   className,
   defaultValue,
   value,
+  labelSide = 'left',
   min = 0,
   max = 100,
   ...props
-}: React.ComponentProps<typeof SliderPrimitive.Root>) {
+}: React.ComponentProps<typeof SliderPrimitive.Root> & {labelSide?: 'left' | 'right'}) {
   const _values = React.useMemo(
     () =>
       Array.isArray(value)
@@ -25,9 +26,9 @@ function Slider({
   const sliderRef = useRef<HTMLSpanElement | null>(null)
 
   return (
-    <div>
-      <p>
-        {sliderRef.current?.ariaValueNow}
+    <div style={{display:'flex', gap: 10, alignItems: 'center', flexDirection: props.orientation === 'vertical' ? labelSide === 'left' ? 'row' : 'row-reverse' : 'column'}} >
+      <p style={{textAlign: 'center', }}>
+        {props.name ? `${props.name}: `: ''}{props.orientation === 'vertical' && <br />}{value}
       </p>
     <SliderPrimitive.Root
       data-slot="slider"
