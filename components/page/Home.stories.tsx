@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Home } from './Home';
 import { demoNotes } from '../../.storybook/demoData';
+import { useState } from 'react';
 
 const meta: Meta<typeof Home> = {
   component: Home,
@@ -18,6 +19,10 @@ export const Default: Story = {
       console.log('[stories/Home] reportViewpoint got values: ', values),
     notes: demoNotes
   },
+  render: (args) => {
+    const [results, setResults] = useState<number>(43)
+    return <Home {...args} resultsCount={results} setResultsCount={setResults} />
+  }
 };
 
 export default meta;

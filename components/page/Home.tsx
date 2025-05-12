@@ -3,22 +3,31 @@
 import { AddReasonForm } from '@components/section/AddReasonForm';
 import { Globe } from '@components/section/Globe';
 import { Button } from '@components/ui/button';
+import { Slider } from '@components/ui/slider';
+
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   useState,
   type WheelEvent,
   type TouchEvent,
   useEffect,
   useRef,
+  type SetStateAction,
+  type Dispatch,
 } from 'react';
 
 function Home({
   submitCallback,
   reportGlobeViewpoint,
   notes,
+  resultsCount,
+  setResultsCount,
 }: {
   submitCallback: Parameters<typeof AddReasonForm>[0]['submitCallback'];
   reportGlobeViewpoint: Parameters<typeof Globe>[0]['reportViewpoint'];
   notes: Parameters<typeof Globe>[0]['data'];
+  resultsCount: number;
+  setResultsCount: Dispatch<SetStateAction<number>>;
 }) {
   /**
    * Scroll controller
@@ -31,6 +40,8 @@ function Home({
   const lastTouchY = useRef<number | null>(null);
   const [allowGlobeInteraction, setAllowGlobeInteraction] =
     useState<boolean>(false);
+  const [labelSide, setLabelSide] =
+    useState<Parameters<typeof Slider>[0]['labelSide']>('left');
 
   const animationFrameId = useRef<number | null>(null);
 
@@ -248,13 +259,54 @@ function Home({
             opacity: scrollPos === 0 && allowGlobeInteraction ? 1 : 0,
             // make the button fade in
             transition: 'opacity 0.5s ease-in-out',
-            // make fade out instant
-            visibility: scrollPos === 0 ? 'visible' : 'hidden',
+            border: '2px solid var(--color-slate-200)',
           }}
           onClick={() => resetScroll()}
         >
           Return Home
         </Button>
+        <div
+          className=""
+          style={{
+            position: 'absolute',
+            bottom: '5%',
+            right: labelSide === 'left' ? '5%' : undefined,
+            left: labelSide === 'right' ? '5%' : undefined,
+            opacity: scrollPos === 0 && allowGlobeInteraction ? 1 : 0,
+            // make the button fade in
+            transition: 'opacity 0.5s ease-in-out',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 10,
+          }}
+        >
+          <Slider
+            value={[resultsCount]}
+            onValueChange={(value) => {
+              setResultsCount(value[0]);
+            }}
+            name="Results"
+            orientation="vertical"
+            labelSide={labelSide}
+            style={{
+              border: '2px solid var(--color-slate-200)',
+              borderRadius: '6px',
+            }}
+          />
+          <Button
+            onClick={() =>
+              setLabelSide(labelSide === 'left' ? 'right' : 'left')
+            }
+            style={{
+              marginLeft: labelSide === 'left' ? 'auto' : '-14px',
+              marginRight: labelSide === 'right' ? 'auto' : '-14px',
+              border: '2px solid var(--color-slate-200)',
+            }}
+          className={'aspect-square w-9'}
+          >
+            {labelSide === 'left' ? <ChevronLeft /> : <ChevronRight />}
+          </Button>
+        </div>
       </div>
     </>
   );
