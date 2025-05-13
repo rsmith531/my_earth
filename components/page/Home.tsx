@@ -256,29 +256,34 @@ function Home({
             bottom: '1%',
             left: '50%',
             transform: 'translateX(-50%)',
-            opacity: scrollPos === 0 && allowGlobeInteraction ? 1 : 0,
             // make the button fade in
             transition: 'opacity 0.5s ease-in-out',
             border: '2px solid var(--color-slate-200)',
           }}
+          className={`
+            ${scrollPos === 0 && allowGlobeInteraction ? 'opacity-30' : 'opacity-0'}
+            hover:opacity-100
+          `}
           onClick={() => resetScroll()}
         >
           Return Home
         </Button>
         <div
-          className=""
           style={{
             position: 'absolute',
             bottom: '5%',
             right: labelSide === 'left' ? '5%' : undefined,
             left: labelSide === 'right' ? '5%' : undefined,
-            opacity: scrollPos === 0 && allowGlobeInteraction ? 1 : 0,
-            // make the button fade in
+            // make the slider fade in
             transition: 'opacity 0.5s ease-in-out',
             display: 'flex',
             flexDirection: 'column',
             gap: 10,
           }}
+          className={`
+            ${scrollPos === 0 && allowGlobeInteraction ? 'opacity-30' : 'opacity-0'}
+            hover:opacity-100
+          `}
         >
           <Slider
             value={[resultsCount]}
