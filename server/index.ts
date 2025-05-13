@@ -10,9 +10,11 @@ import { notes } from './db/schema';
 import { z } from 'zod';
 import { getVisibleRadius } from './utils';
 import { getMessagesWithin } from './db/queries';
+import { clustersKmeans } from '@turf/clusters-kmeans';
+import { featureCollection, point } from '@turf/helpers';
 
 const app = new Hono()
-.use('*', cors())
+  .use('*', cors())
   .post(
     '/save-note',
     validator('json', (value, c) => {
@@ -64,7 +66,7 @@ const app = new Hono()
           .regex(
             /^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$/,
           ),
-        results: z.coerce.number().positive().lte(100).optional(),
+        results: z.coerce.number().positive().lte(100).optional().default(50),
       }),
       (value, c) => {
         if (!value.success) {
@@ -80,7 +82,8 @@ const app = new Hono()
     async (c) => {
       const params = c.req.valid('query');
       try {
-        // the arc length calculated from 90 degrees and the radius of the earth
+        // the arc length calculated from 90 degrees (1/4 of earth's
+        // circumference) and the radius of the earth
         const radiusFromViewpointToHorizon = 10018754;
         const radius = Number(
           await getVisibleRadius(
@@ -98,8 +101,79 @@ const app = new Hono()
             x: Number(params.longitude),
             y: Number(params.latitude),
           },
-          params.results ?? 50,
+          // get thrice the amount of requested results so there is something to
+          // cluster
+          params.results * 3,
         );
+
+        // if the amount of returned results is more than the amount asked for,
+        // use K-means to select distant points by picking the centroid of each
+        // cluster
+        if (results.length > params.results) {
+          const clusters = clustersKmeans(
+            featureCollection(
+              results.map((result) => {
+                return point([result.location.x, result.location.y], {
+                  message: result.message,
+                });
+              }),
+            ),
+            { numberOfClusters: params.results },
+          );
+
+          const representativePoints: {
+            message: string;
+            location: {
+              x: number;
+              y: number;
+            };
+          }[] = [];
+
+          // track which clusters have been processed already
+          const seenClusterIds = new Set<number>();
+
+          for (const feature of clusters.features) {
+            const clusterId = feature.properties.cluster;
+
+            // do type narrowing to ensure the cluster exists
+            if (clusterId === undefined) {
+              console.warn(
+                '[api/get] Feature found without clusterId during processing:',
+                feature,
+              );
+              continue;
+            }
+            if (
+              !feature.geometry.coordinates[0] ||
+              !feature.geometry.coordinates[1]
+            ) {
+              console.warn(
+                '[api/get] Feature found without coordinates during processing:',
+                feature,
+              );
+              continue;
+            }
+
+            // add one point from each cluster to the results to return
+            if (!seenClusterIds.has(clusterId)) {
+              seenClusterIds.add(clusterId);
+              representativePoints.push({
+                message: feature.properties.message,
+                location: {
+                  x: feature.geometry.coordinates[0],
+                  y: feature.geometry.coordinates[1],
+                },
+              });
+            }
+
+            // optimization: if we've found one point for each of the `params.results` clusters, we can stop
+            if (representativePoints.length >= params.results) {
+              break;
+            }
+          }
+
+          return c.json(representativePoints, 200);
+        }
 
         return c.json(results, 200);
       } catch (error) {

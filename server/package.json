@@ -23,6 +23,8 @@
   },
   "dependencies": {
     "@hono/zod-validator": "^0.5.0",
+    "@turf/clusters-kmeans": "^7.2.0",
+    "@turf/helpers": "^7.2.0",
     "drizzle-orm": "^0.43.1",
     "drizzle-seed": "^0.3.1",
     "hono": "^4.7.8",
