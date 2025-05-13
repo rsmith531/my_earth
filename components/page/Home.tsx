@@ -14,7 +14,6 @@ import {
   useRef,
   type SetStateAction,
   type Dispatch,
-  memo,
 } from 'react';
 
 function Home({
@@ -44,10 +43,6 @@ function Home({
   const [labelSide, setLabelSide] =
     useState<Parameters<typeof Slider>[0]['labelSide']>('left');
 
-  /**
-   * memoize the globe so that it doesn't re-render when the Home component rerenders
-   */
-  const MemoizedGlobe = memo(Globe);
   const animationFrameId = useRef<number | null>(null);
 
   /**
@@ -250,7 +245,7 @@ function Home({
         </p>
       </div>
       <div id="home-globe" className="absolute flex inset-0 z-0">
-        <MemoizedGlobe
+        <Globe
           interactive={allowGlobeInteraction}
           data={notes}
           reportViewpoint={reportGlobeViewpoint}
