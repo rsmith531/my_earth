@@ -168,7 +168,7 @@ function Globe({
         // https://github.com/vasturiano/react-globe.gl?tab=readme-ov-file#render-control
         fov: globe.camera().fov,
         altitude: Math.floor(
-          convertGRUsToMeters(pov.altitude, globe.getGlobeRadius()),
+          convertGRUsToMeters(pov.altitude),
         ),
         latitude: +pov.lat.toFixed(5),
         longitude: +pov.lng.toFixed(5),
