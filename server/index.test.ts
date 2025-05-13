@@ -20,7 +20,7 @@ describe('The notes endpoint', () => {
   const client = testClient(dbServer);
 
   const getParams = {
-    altitude: '4',
+    altitude: '200000',
     fieldOfView: '50',
     latitude: '41.15611',
     longitude: '-81.41418',
@@ -47,7 +47,6 @@ describe('The notes endpoint', () => {
       expect(res.status).toBe(200);
 
       const body = await res.json();
-      console.log(body);
       expect(body).toBeArray();
       expect(body).toHaveLength(1);
       expect(body).not.toHaveProperty('error');
