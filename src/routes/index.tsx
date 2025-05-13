@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { honoClient } from '@lib/utils';
 import { notesQuery, notesQueryOptions } from '@/useNotes';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useThrottler } from '@tanstack/react-pacer';
+import { useThrottler, useDebouncedValue } from '@tanstack/react-pacer';
 
 const initialViewpoint = {
   fov: 50,
@@ -15,10 +15,14 @@ const initialViewpoint = {
   longitude: 0,
 };
 
+const initialResults = 20;
+
 export const Route = createFileRoute('/')({
   component: HomePage,
   loader: ({ context: { queryClient } }) => {
-    return queryClient.ensureQueryData(notesQueryOptions(initialViewpoint));
+    return queryClient.ensureQueryData(
+      notesQueryOptions({ ...initialViewpoint, resultsToGet: initialResults }),
+    );
   },
 });
 
@@ -56,6 +60,17 @@ function HomePage() {
   }, []);
 
   /**
+   * control the number of results returned via the slider in the Home
+   * component. The value is debounced before being passed to the notesQuery
+   * where it is used to do the get request.
+   */
+  const [resultsCount, setResultsCount] = useState<number>(initialResults);
+  const [debouncedResultsCount] = useDebouncedValue(resultsCount, {
+    wait: 500,
+    trailing: true,
+  });
+
+  /**
    * put the viewpoint updater in a throttler to make sure it doesn't trigger
    * for every minute change in viewpoint.
    */
@@ -65,7 +80,10 @@ function HomePage() {
   });
 
   const initialNotesData = Route.useLoaderData();
-  const { data: fetchedNotes, error } = notesQuery(queryViewpoint);
+  const { data: fetchedNotes, error } = notesQuery({
+    ...queryViewpoint,
+    resultsToGet: debouncedResultsCount,
+  });
   const notesToDisplay = fetchedNotes ?? initialNotesData;
 
   /**
@@ -89,6 +107,8 @@ function HomePage() {
       submitCallback={submissionCallback}
       notes={notesToDisplay}
       reportGlobeViewpoint={handleCameraReport.maybeExecute}
+      resultsCount={resultsCount}
+      setResultsCount={setResultsCount}
     />
   );
 }

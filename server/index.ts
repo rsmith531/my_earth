@@ -1,6 +1,7 @@
 // server\index.ts
 
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import { validator } from 'hono/validator';
 import { zValidator } from '@hono/zod-validator';
 import { validationSchema } from '../components/section/AddReasonForm';
@@ -11,6 +12,7 @@ import { getVisibleRadius } from './utils';
 import { getMessagesWithin } from './db/queries';
 
 const app = new Hono()
+.use('*', cors())
   .post(
     '/save-note',
     validator('json', (value, c) => {
@@ -62,7 +64,7 @@ const app = new Hono()
           .regex(
             /^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$/,
           ),
-        results: z.coerce.number().positive().lt(100).optional(),
+        results: z.coerce.number().positive().lte(100).optional(),
       }),
       (value, c) => {
         if (!value.success) {
@@ -96,7 +98,7 @@ const app = new Hono()
             x: Number(params.longitude),
             y: Number(params.latitude),
           },
-          50,
+          params.results ?? 50,
         );
 
         return c.json(results, 200);
