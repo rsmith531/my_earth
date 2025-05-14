@@ -16,6 +16,12 @@ import { Textarea } from '@components/ui/textarea';
 import { Input } from '@components/ui/input';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { useCooldown } from '@lib/useCooldown';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@components/ui/tooltip';
 
 export const validationSchema = z.object({
   message: z.string().min(1).max(300).trim(),
@@ -125,6 +131,10 @@ function AddReasonForm({
     'loading' | 'error' | 'success'
   >('loading');
 
+  // hook for making the submit button have an exponential backoff cooldown on
+  // successful submits
+  const { remainingCooldownSeconds, startCooldown } = useCooldown();
+
   return (
     <Form {...form}>
       <form
@@ -133,6 +143,7 @@ function AddReasonForm({
             submitCallback(values)
               .then(() => {
                 form.resetField('message');
+                startCooldown();
               })
               .catch(() => {
                 // it's handled
@@ -224,19 +235,50 @@ function AddReasonForm({
             )}
           />
         </div>
-        <Button
-          type="submit"
-          className={'aspect-square h-16 bg-slate-700 hover:bg-slate-700/90'}
-          disabled={locationStatus !== 'success'}
-        >
-          {locationStatus === 'loading' ? (
-            <Locate className="size-8 stroke-slate-200 animate-pulse" />
-          ) : locationStatus === 'error' ? (
-            <CircleAlert className="size-8 stroke-slate-200" />
-          ) : (
-            <Send className="size-8 stroke-slate-200" />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span
+              // className="inline-block"
+              tabIndex={remainingCooldownSeconds ? 0 : undefined}
+              style={{
+                cursor:
+                  locationStatus !== 'success' || !!remainingCooldownSeconds
+                    ? 'not-allowed'
+                    : 'default',
+              }}
+            >
+              <Button
+                type="submit"
+                className={
+                  'aspect-square h-16 bg-slate-700 hover:bg-slate-700/90'
+                }
+                disabled={
+                  locationStatus !== 'success' || !!remainingCooldownSeconds
+                }
+              >
+                {remainingCooldownSeconds ? (
+                  remainingCooldownSeconds
+                ) : locationStatus === 'loading' ? (
+                  <Locate className="size-8 stroke-slate-200 animate-pulse" />
+                ) : locationStatus === 'error' ? (
+                  <CircleAlert className="size-8 stroke-slate-200" />
+                ) : (
+                  <Send className="size-8 stroke-slate-200" />
+                )}
+              </Button>
+            </span>
+          </TooltipTrigger>
+          {!!remainingCooldownSeconds && (
+            <TooltipContent className={'max-w-3xs'}>
+              <p>
+                We're thrilled you want to share your thoughts with the world,
+                but we need to give others a chance to share theirs, too. While
+                you wait, consider checking out some favorites that others have
+                submitted!
+              </p>
+            </TooltipContent>
           )}
-        </Button>
+        </Tooltip>
       </form>
     </Form>
   );
