@@ -128,7 +128,7 @@ function Home({
     if (scrollPos === 0) {
       timerId = setTimeout(() => {
         setAllowGlobeInteraction(true);
-      }, 1000); // 1 second
+      }, 400); // 0.4 second
     } else {
       // If scrollPos is not 0, disallow globe interaction immediately
       // This also handles cases where scrollPos moves away from 0 before the timer finishes
