@@ -1,33 +1,64 @@
-// https://www.techtarget.com/searchcontentmanagement/tip/Types-of-AI-content-moderation-and-how-they-work
-// https://blog.tensorflow.org/2022/08/content-moderation-using-machine-learning-a-dual-approach.html
-// https://dev.to/bekahhw/youre-toxic-using-the-toxicity-model-with-tensorflowjs-5h27
-// https://medium.com/codex/detecting-online-toxicity-with-tensorflow-js-77770649e5c4  <-- slop
-// https://observablehq.com/@e83e200c7de9a3ab/tensorflow-js-lab01-using-the-toxicity-model/2
-// https://www.tensorflow.org/js/guide/platform_environment
+// moderation\tensorflowModeration.ts
 
 import { ToxicityClassifier } from '@tensorflow-models/toxicity';
-import tf from '@tensorflow/tfjs';
+import { setBackend } from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-backend-wasm';
 
 if (typeof window !== 'undefined') {
-  tf.setBackend('webgl');
+  setBackend('webgl');
 } else {
-  tf.setBackend('wasm');
+  setBackend('wasm');
 }
 
-let model: ToxicityClassifier;
+const DEFAULT_THRESHOLD = 0.8;
+let model: ToxicityClassifier | null;
+let modelLoading: Promise<void> | null = null;
+
+export async function initializeModerator(
+  threshold = DEFAULT_THRESHOLD,
+): Promise<void> {
+  // don't reinitialize if it was already initialized
+  if (model) return Promise.resolve();
+  if (modelLoading) return modelLoading;
+
+  // load the toxicity model, set a promise so everything knows it is being
+  // loaded
+  const loading = new Promise<void>((resolve, reject) => {
+    const newModel = new ToxicityClassifier(threshold);
+    newModel
+      .load()
+      .then(() => {
+        model = newModel;
+        resolve();
+      })
+      .catch((error) => {
+        console.error('[Toxicity] Failed to load toxicity model:', error);
+        model = null;
+        reject(error);
+      })
+      .finally(() => {
+        modelLoading = null;
+      });
+  });
+
+  modelLoading = loading; // store the promise
+  return loading; // return the promise so callers can await it
+}
 
 export async function classifyToxicity(
   sentence: string,
-  threshold = 0.8,
+  threshold = DEFAULT_THRESHOLD,
 ): Promise<ReturnType<ToxicityClassifier['classify']>> {
+  await initializeModerator();
+
   if (!model) {
-    model = new ToxicityClassifier(threshold);
-    await model.load();
+    // should not be possible, but we'll check anyways
+    throw new Error(
+      '[moderation] Toxicity model is not available for classification.',
+    );
   }
 
   const pred = await model.classify(sentence);
-  //   console.log('classification of sentence: ', JSON.stringify(pred, null, 2));
 
   // filter out non-matching sentences
   const filteredPred = pred.filter((item) =>

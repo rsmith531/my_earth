@@ -145,8 +145,8 @@ function AddReasonForm({
                 form.resetField('message');
                 startCooldown();
               })
-              .catch(() => {
-                // it's handled
+              .catch((error) => {
+                console.error(`[AddReasonForm] error submitting form: ${error.message}`)
               });
           },
           (errors) => {

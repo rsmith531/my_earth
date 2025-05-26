@@ -7,9 +7,12 @@ import { honoClient } from '@lib/utils';
 import { notesQuery, notesQueryOptions } from '@/useNotes';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useThrottler, useDebouncedValue } from '@tanstack/react-pacer';
+import { classifyToxicity } from 'moderation';
+import { initializeModerator } from 'moderation/tensorflowModeration';
 
 const initialViewpoint = {
   fov: 50,
+  // matches the initial altitude of the camera in react-globe.gl
   altitude: 22316121,
   latitude: 0,
   longitude: 0,
@@ -102,6 +105,14 @@ function HomePage() {
     }
   }, [error]);
 
+  /**
+   * initialize the tensorflow model when the page loads so that it's ready by
+   * the time the user submits their message (which uses the model)
+   */
+  useEffect(() => {
+    initializeModerator();
+  }, []);
+
   return (
     <Home
       submitCallback={submissionCallback}
@@ -116,6 +127,18 @@ function HomePage() {
 const submissionCallback: Parameters<typeof Home>[0]['submitCallback'] = async (
   values,
 ) => {
+  const moderationResults = await classifyToxicity(values.message);
+
+  if (moderationResults.length > 0) {
+    toast.error('We do not allow this type of content on our platform.', {
+      closeButton: true,
+      duration: Number.POSITIVE_INFINITY,
+    });
+    throw new Error(
+      `[index/submissionCallback] user tried to submit disallowed content: ${values.message}`,
+    );
+  }
+
   const response = await honoClient()['save-note'].$post(
     { json: { ...values } },
     { headers: { 'Content-Type': 'application/json' } },
