@@ -34,8 +34,8 @@ const app = new Hono()
         await db.insert(notes).values({
           message: validatedRequest.message,
           location: {
-            x: validatedRequest.latitude,
-            y: validatedRequest.longitude,
+            x: validatedRequest.longitude,
+            y: validatedRequest.latitude,
           },
         });
       } catch (error) {
