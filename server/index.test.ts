@@ -28,7 +28,7 @@ describe('The notes endpoint', () => {
 
   describe('for GET requests', () => {
     test('should return notes', async () => {
-      const res = await client['save-note'].$get({
+      const res = await client['get-notes'].$get({
         query: getParams,
       });
 
@@ -40,7 +40,7 @@ describe('The notes endpoint', () => {
       expect(body).not.toHaveProperty('error');
     });
     test('should respect the results param', async () => {
-      const res = await client['save-note'].$get({
+      const res = await client['get-notes'].$get({
         query: { ...getParams, results: '1' },
       });
 
@@ -54,7 +54,7 @@ describe('The notes endpoint', () => {
 
     describe('should return errors', () => {
       test('for missing params', async () => {
-        const res = await client['save-note'].$get({
+        const res = await client['get-notes'].$get({
           // @ts-expect-error intentionally excluding altitude to test missing params
           query: { ...getParams, altitude: undefined },
         });
@@ -65,7 +65,7 @@ describe('The notes endpoint', () => {
         expect(body).toHaveProperty('error');
       });
       test('for invalid params', async () => {
-        const res = await client['save-note'].$get({
+        const res = await client['get-notes'].$get({
           query: {
             ...getParams,
             altitude: 'not a number',

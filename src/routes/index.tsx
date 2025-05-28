@@ -128,16 +128,68 @@ const submissionCallback: Parameters<typeof Home>[0]['submitCallback'] = async (
   values,
 ) => {
   const moderationResults = await classifyToxicity(values.message);
+  let failedModeration = false;
 
-  if (moderationResults.length > 0) {
+  // if they submit something that fails moderation, let them know, but also
+  // save the message to use as training data
+  if (moderationResults.matchedResults.length > 0) {
+    failedModeration = true;
     toast.error('We do not allow this type of content on our platform.', {
       closeButton: true,
       duration: Number.POSITIVE_INFINITY,
     });
-    throw new Error(
-      `[index/submissionCallback] user tried to submit disallowed content: ${values.message}`,
+
+    await honoClient()['report-note'].$post(
+      {
+        json: {
+          reason: moderationResults.matchedResults.map((result) => {
+            return result.category;
+          }),
+          flaggedBy: 'ml_model_fail',
+          message: { ...values },
+          modelOutput: JSON.stringify(moderationResults),
+        },
+      },
+      { headers: { 'Content-Type': 'application/json' } },
+    );
+
+    // no error checking on the API response because I don't want to advise the
+    // user I am saving their bad content to use as training data on the
+    // moderator model, so I'll just lose it instead
+  }
+
+  // if they submit something that moderation is uncertain about, let them know
+  // their message needs to be reviewed before being published
+  if (moderationResults.uncertainResults.length > 0) {
+    if (!failedModeration) {
+      // only send this message if they haven't been previously notified of a moderation fail
+      toast.warning(
+        'We think your note might contain content we do not allow. It has been flagged for review and will be published if it passes.',
+        {
+          closeButton: true,
+          duration: Number.POSITIVE_INFINITY,
+        },
+      );
+    }
+    failedModeration = true;
+
+    await honoClient()['report-note'].$post(
+      {
+        json: {
+          reason: moderationResults.uncertainResults.map((result) => {
+            return result.category;
+          }),
+          flaggedBy: 'ml_model_uncertain',
+          message: { ...values },
+          modelOutput: JSON.stringify(moderationResults),
+        },
+      },
+      { headers: { 'Content-Type': 'application/json' } },
     );
   }
+
+  // return early if the new note failed moderation
+  if (failedModeration) return;
 
   const response = await honoClient()['save-note'].$post(
     { json: { ...values } },

@@ -4,9 +4,14 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { validator } from 'hono/validator';
 import { zValidator } from '@hono/zod-validator';
-import { validationSchema } from '../components/section/AddReasonForm';
+import { validationSchema as saveNoteValidation } from '../components/section/AddReasonForm';
 import { db } from './db/client';
-import { notes } from './db/schema';
+import {
+  flaggedNotes,
+  flaggingAuthorityEnum,
+  flagReasonEnum,
+  notes,
+} from './db/schema';
 import { z } from 'zod';
 import { getVisibleRadius } from './utils';
 import { getMessagesWithin } from './db/queries';
@@ -18,7 +23,7 @@ const app = new Hono()
   .post(
     '/save-note',
     validator('json', (value, c) => {
-      const parsed = validationSchema.safeParse(value);
+      const parsed = saveNoteValidation.safeParse(value);
       if (!parsed.success) {
         console.error(
           `[api/save-note ${c.req.method}] request failed validation: `,
@@ -37,6 +42,7 @@ const app = new Hono()
             x: validatedRequest.longitude,
             y: validatedRequest.latitude,
           },
+          publishedAt: new Date(),
         });
       } catch (error) {
         console.error(
@@ -49,7 +55,7 @@ const app = new Hono()
     },
   )
   .get(
-    '/save-note',
+    '/get-notes',
     zValidator(
       'query',
       z.object({
@@ -184,7 +190,106 @@ const app = new Hono()
         return c.json({ error: 'Could not get notes' }, 500);
       }
     },
+  )
+  .post(
+    '/report-note',
+    zValidator(
+      'json',
+      z
+        .object({
+          reason: z.array(z.enum(flagReasonEnum.enumValues)),
+          flaggedBy: z.enum(flaggingAuthorityEnum.enumValues),
+          modelOutput: z.string().optional(), // hack: JSON.stringify() the output so it can be any shape
+          message: saveNoteValidation.optional(),
+          messageId: z.string().uuid().optional(),
+        })
+        .superRefine((value, context) => {
+          if (value.message && value.messageId)
+            context.addIssue({
+              code: 'custom',
+              message: 'Cannot submit both a message and a message ID',
+              path: ['message', 'messageId'],
+            });
+          if (!value.message && !value.messageId)
+            context.addIssue({
+              code: 'custom',
+              message: 'A message or message ID must be provided',
+              path: ['message', 'messageId'],
+            });
+          if (
+            (value.flaggedBy === 'ml_model_fail' ||
+              value.flaggedBy === 'ml_model_uncertain') &&
+            !value.modelOutput
+          )
+            context.addIssue({
+              code: 'custom',
+              message:
+                'Must provide model output if the reporting authority is the ML moderator',
+              path: ['modelOutput'],
+            });
+        }),
+      (value, c) => {
+        if (!value.success) {
+          value.error.errors.map((problem) => {
+            console.error(
+              `[api/report-note ${c.req.method}] ${problem.path[0]} parameter failed validation: ${problem.message}`,
+            );
+          });
+          return c.json({ error: 'invalid' }, 400);
+        }
+      },
+    ),
+    async (c) => {
+      const params = c.req.valid('json');
+      console.log('got params ', params);
+      try {
+        // if the params have a message id, use it for the fkey in the flaggedNotes table
+        let messageFkey = params.messageId ?? null;
+
+        // if the params have a new message, save it to the notes table but as
+        // unpublished and remember the new id
+        if (params.message) {
+          messageFkey =
+            (
+              await db
+                .insert(notes)
+                .values({
+                  message: params.message.message,
+                  location: {
+                    x: params.message.longitude,
+                    y: params.message.latitude,
+                  },
+                  // specify null just to be certain
+                  publishedAt: null,
+                })
+                .returning({ id: notes.id })
+            )[0]?.id ?? null;
+        }
+
+        // save the data to the flaggedNotes table with the message id
+        if (!messageFkey)
+          throw new Error('No message ID found for the flagged message');
+
+        await db.insert(flaggedNotes).values({
+          id: messageFkey,
+          reason: params.reason,
+          flaggedBy: params.flaggedBy,
+          mlModelOutput: params.modelOutput,
+        });
+
+        return c.json({ message: 'Recorded' }, 200);
+      } catch (error) {
+        console.error(
+          `[api/report-note ${c.req.method}] encountered error while recording flagged message: `,
+          error,
+        );
+        return c.json({ error: 'Could not flag note' }, 500);
+      }
+    },
   );
+
+if (!process.env.API_SERVER_PORT)
+  throw new Error('[api] API_SERVER_PORT is not defined');
 
 Bun.serve({
   fetch: app.fetch,

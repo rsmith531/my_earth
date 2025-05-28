@@ -2,6 +2,7 @@
   "name": "moderation",
   "module": "index.ts",
   "type": "module",
+  "version": "0.1.0",
   "scripts": {
     "test": "vitest"
   },

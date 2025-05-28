@@ -8,14 +8,16 @@ describe('The toxicity model', () => {
         'I love the smell of sunshine in the morning',
       );
 
-      expect(result.length).toBe(0);
+      expect(result.matchedResults.length).toBe(0);
+      expect(result.uncertainResults.length).toBe(0);
     });
     test('example 2', async () => {
       const result = await classifyToxicity(
         'The birds and the bees make spring my favorite season',
       );
 
-      expect(result.length).toBe(0);
+      expect(result.matchedResults.length).toBe(0);
+      expect(result.uncertainResults.length).toBe(0);
     });
   });
 
@@ -23,10 +25,10 @@ describe('The toxicity model', () => {
     test('threats', async () => {
       const result = await classifyToxicity("I'm going to kill your mom");
 
-      expect(result.length).toBeGreaterThanOrEqual(1);
+      expect(result.matchedResults.length).toBeGreaterThanOrEqual(1);
 
-      const hasCorrectClassification = result.some(
-        (item) => item.label === 'threat' && item.results.some((r) => r.match),
+      const hasCorrectClassification = result.matchedResults.some(
+        (item) => item.category === 'threat',
       );
       expect(hasCorrectClassification).toBe(true);
     });
@@ -35,11 +37,11 @@ describe('The toxicity model', () => {
     test('identity attacks', async () => {
       const result = await classifyToxicity('Get your gay self out of here.');
 
-      expect(result.length).toBeGreaterThanOrEqual(1);
+      expect(result.matchedResults.length).toBeGreaterThanOrEqual(1);
 
-      const hasCorrectClassification = result.some(
+      const hasCorrectClassification = result.matchedResults.some(
         (item) =>
-          item.label === 'identity_attack' && item.results.some((r) => r.match),
+          item.category === 'identity_attack',
       );
       expect(hasCorrectClassification).toBe(true);
     });
@@ -49,10 +51,10 @@ describe('The toxicity model', () => {
         'Your mama so fat she wanted to eat the earth for breakfast.',
       );
 
-      expect(result.length).toBeGreaterThanOrEqual(1);
+      expect(result.matchedResults.length).toBeGreaterThanOrEqual(1);
 
-      const hasCorrectClassification = result.some(
-        (item) => item.label === 'insult' && item.results.some((r) => r.match),
+      const hasCorrectClassification = result.matchedResults.some(
+        (item) => item.category === 'insult',
       );
       expect(hasCorrectClassification).toBe(true);
     });
@@ -60,10 +62,10 @@ describe('The toxicity model', () => {
     test('obscene', async () => {
       const result = await classifyToxicity('No fucking way');
 
-      expect(result.length).toBeGreaterThanOrEqual(1);
+      expect(result.matchedResults.length).toBeGreaterThanOrEqual(1);
 
-      const hasCorrectClassification = result.some(
-        (item) => item.label === 'obscene' && item.results.some((r) => r.match),
+      const hasCorrectClassification = result.matchedResults.some(
+        (item) => item.category === 'obscene',
       );
       expect(hasCorrectClassification).toBe(true);
     });
@@ -72,11 +74,11 @@ describe('The toxicity model', () => {
     test.skip('severe toxicity', async () => {
       const result = await classifyToxicity("I'm going to kill your mom");
 
-      expect(result.length).toBeGreaterThanOrEqual(1);
+      expect(result.matchedResults.length).toBeGreaterThanOrEqual(1);
 
-      const hasCorrectClassification = result.some(
+      const hasCorrectClassification = result.matchedResults.some(
         (item) =>
-          item.label === 'severe_toxicity' && item.results.some((r) => r.match),
+          item.category === 'severe_toxicity',
       );
       expect(hasCorrectClassification).toBe(true);
     });
@@ -87,11 +89,11 @@ describe('The toxicity model', () => {
         'Wanna go back to my place so you can give me a blowjob?',
       );
 
-      expect(result.length).toBeGreaterThanOrEqual(1);
+      expect(result.matchedResults.length).toBeGreaterThanOrEqual(1);
 
-      const hasCorrectClassification = result.some(
+      const hasCorrectClassification = result.matchedResults.some(
         (item) =>
-          item.label === 'sexual_explicit' && item.results.some((r) => r.match),
+          item.category === 'sexual_explicit',
       );
       expect(hasCorrectClassification).toBe(true);
     });
@@ -99,11 +101,11 @@ describe('The toxicity model', () => {
     test('general toxicity', async () => {
       const result = await classifyToxicity('I hate everybody here');
 
-      expect(result.length).toBeGreaterThanOrEqual(1);
+      expect(result.matchedResults.length).toBeGreaterThanOrEqual(1);
 
-      const hasCorrectClassification = result.some(
+      const hasCorrectClassification = result.matchedResults.some(
         (item) =>
-          item.label === 'toxicity' && item.results.some((r) => r.match),
+          item.category === 'toxicity',
       );
       expect(hasCorrectClassification).toBe(true);
     });
