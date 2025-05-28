@@ -16,7 +16,7 @@ export const notesQueryOptions = (keys: {
     queryFn: async (): Promise<Parameters<typeof Home>[0]['notes']> => {
       if (keys.resultsToGet === 0) return []
       const response = await (
-        await honoClient()['save-note'].$get({
+        await honoClient()['get-notes'].$get({
           query: {
             altitude: keys.altitude.toString(),
             fieldOfView: keys.fov.toString(),
