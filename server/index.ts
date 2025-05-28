@@ -293,7 +293,7 @@ if (!process.env.API_SERVER_PORT)
 
 Bun.serve({
   fetch: app.fetch,
-  port: 3001,
+  port: process.env.API_SERVER_PORT,
 });
 
 export { app as dbServer };

@@ -79,7 +79,7 @@ if command_exists docker; then
   else
     echo "Container 'my_earth_db' not found. Running a new container."
 
-    docker run --name my_earth_db -e POSTGRES_PASSWORD=YoullNeverGuessThisOne -p 5431:5432 -d postgis/postgis
+    docker run --name my_earth_db -e POSTGRES_PASSWORD=YoullNeverGuessThisOne -p 4002:5432 -d postgis/postgis
 
     # Check the exit status of the docker run command
     if [ $? -ne 0 ]; then

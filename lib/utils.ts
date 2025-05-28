@@ -24,5 +24,6 @@ export function convertGRUsToMeters(units: number) {
  * @returns a hono client to make type-safe requests to the API server
  */
 export function honoClient() {
-  return hc<AppType>('http://localhost:3001');
+  if (!import.meta.env.VITE_DATABASE_ENDPOINT) throw new Error('[honoClient] DATABASE_ENDPOINT is not defined')
+  return hc<AppType>(import.meta.env.VITE_DATABASE_ENDPOINT);
 }
