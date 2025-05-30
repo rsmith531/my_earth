@@ -22,13 +22,13 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Install dependencies
+        run: bun install
+
       - name: Setup Docker Buildx (for DB container)
         uses: docker/setup-buildx-action@v3
 
       # --- Server Checks ---
-      - name: Install server dependencies
-        run: bun install --frozen-lockfile
-        working-directory: ./server
 
       - name: Check server type errors
         run: bun run tsc
@@ -60,10 +60,6 @@ jobs:
         working-directory: ./server
 
       # --- Client Checks ---
-      - name: Install client dependencies
-        run: bun install --frozen-lockfile
-        working-directory: ./client
-
       - name: Check client type errors
         run: bun run tsc
         working-directory: ./client
