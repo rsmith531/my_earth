@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import type { AppType } from 'server';
+import type { AppType } from '../../server';
 import { hc } from 'hono/client';
 
 // TODO: put these utils somewhere more visible and organized

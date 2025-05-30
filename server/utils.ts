@@ -1,3 +1,5 @@
+// TODO: write tests and docs
+
 export async function getVisibleRadius(
   altitude: string,
   fov: string,

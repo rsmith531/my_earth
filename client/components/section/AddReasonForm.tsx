@@ -22,39 +22,18 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@components/ui/tooltip';
-
-export const validationSchema = z.object({
-  message: z.string().min(1).max(300).trim(),
-  latitude: z
-    .number({
-      required_error:
-        'Please wait to send your message until we can attach it to your location.',
-    })
-    .refine((val) => val !== 0, {
-      message:
-        'Please wait to send your message until we can attach it to your location.',
-    }),
-  longitude: z
-    .number({
-      required_error:
-        'Please wait to send your message until we can attach it to your location.',
-    })
-    .refine((val) => val !== 0, {
-      message:
-        'Please wait to send your message until we can attach it to your location.',
-    }),
-});
+import { saveNoteValidationSchema } from '@server/index';
 
 function AddReasonForm({
   submitCallback,
   focusHandler,
 }: {
-  submitCallback: (values: z.infer<typeof validationSchema>) => Promise<void>;
+  submitCallback: (values: z.infer<typeof saveNoteValidationSchema>) => Promise<void>;
   focusHandler?: () => void;
 }) {
-  const form = useForm<z.infer<typeof validationSchema>>({
+  const form = useForm<z.infer<typeof saveNoteValidationSchema>>({
     mode: 'onChange',
-    resolver: zodResolver(validationSchema),
+    resolver: zodResolver(saveNoteValidationSchema),
     defaultValues: {
       message: '',
       latitude: 0,

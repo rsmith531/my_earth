@@ -4,7 +4,6 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { validator } from 'hono/validator';
 import { zValidator } from '@hono/zod-validator';
-import { validationSchema as saveNoteValidation } from '../components/section/AddReasonForm';
 import { db } from './db/client';
 import {
   flaggedNotes,
@@ -18,12 +17,30 @@ import { getMessagesWithin } from './db/queries';
 import { clustersKmeans } from '@turf/clusters-kmeans';
 import { featureCollection, point } from '@turf/helpers';
 
+export const saveNoteValidationSchema = z.object({
+  message: z.string().min(1).max(300).trim(),
+  latitude: z
+    .number({
+      required_error: 'Please wait to send your message until we can attach it to your location.',
+    })
+    .refine((val) => val !== 0, {
+      message: 'Please wait to send your message until we can attach it to your location.',
+    }),
+  longitude: z
+    .number({
+      required_error: 'Please wait to send your message until we can attach it to your location.',
+    })
+    .refine((val) => val !== 0, {
+      message: 'Please wait to send your message until we can attach it to your location.',
+    }),
+});
+
 const app = new Hono()
   .use('*', cors())
   .post(
     '/save-note',
     validator('json', (value, c) => {
-      const parsed = saveNoteValidation.safeParse(value);
+      const parsed = saveNoteValidationSchema.safeParse(value);
       if (!parsed.success) {
         console.error(
           `[api/save-note ${c.req.method}] request failed validation: `,
@@ -200,7 +217,7 @@ const app = new Hono()
           reason: z.array(z.enum(flagReasonEnum.enumValues)),
           flaggedBy: z.enum(flaggingAuthorityEnum.enumValues),
           modelOutput: z.string().optional(), // hack: JSON.stringify() the output so it can be any shape
-          message: saveNoteValidation.optional(),
+          message: saveNoteValidationSchema.optional(),
           messageId: z.string().uuid().optional(),
         })
         .superRefine((value, context) => {
