@@ -38,8 +38,16 @@ jobs:
         run: chmod +x ./db/init.sh
         working-directory: ./server
 
-      - name: Start PostgreSQL container and run Drizzle migrations
-        run: bun run db-create
+      - name: Start PostgreSQL container
+        run: bun run db-start
+        working-directory: ./server
+
+      - name: Wait for PostgreSQL server to warm up
+        run: sleep 2s
+        working-directory: ./server
+
+      - name: Push drizzle migrations
+        run: bunx drizzle-kit generate --config \"db/drizzle.config.ts\" && bunx drizzle-kit push --config \"db/drizzle.config.ts\"
         working-directory: ./server
 
       - name: Run server tests
