@@ -47,7 +47,7 @@ jobs:
         working-directory: ./server
 
       - name: Push drizzle migrations
-        run: bunx drizzle-kit generate --config \"db/drizzle.config.ts\" && bunx drizzle-kit push --config \"db/drizzle.config.ts\"
+        run: bunx drizzle-kit generate --config=./db/drizzle.config.ts && bunx drizzle-kit push --config=./db/drizzle.config.ts
         working-directory: ./server
 
       - name: Run server tests
@@ -56,7 +56,7 @@ jobs:
 
       - name: Stop PostgreSQL container
         if: always()
-        run: docker rm myearth-db
+        run: docker rm my_earth_db
         working-directory: ./server
 
       # --- Client Checks ---
