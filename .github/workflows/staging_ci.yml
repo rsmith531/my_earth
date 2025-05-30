@@ -8,6 +8,7 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    environment: staging
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       API_SERVER_PORT: ${{ secrets.API_SERVER_PORT }}
