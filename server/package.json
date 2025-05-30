@@ -14,12 +14,7 @@
     "db-studio": " bun run db-start && bunx drizzle-kit studio --config \"db/drizzle.config.ts\""
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "concurrently": "^9.1.2",
     "drizzle-kit": "^0.31.1"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.5.0",
