@@ -20,6 +20,7 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
       '@lib': resolve(__dirname, './lib'),
       '@components': resolve(__dirname, './components'),
+      '@server': resolve(__dirname, '../server'),
     },
   },
 });
