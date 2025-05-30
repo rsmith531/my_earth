@@ -56,7 +56,7 @@ jobs:
 
       - name: Stop PostgreSQL container
         if: always()
-        run: docker rm my_earth_db
+        run: docker rm -f my_earth_db
         working-directory: ./server
 
       # --- Client Checks ---
