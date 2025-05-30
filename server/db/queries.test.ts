@@ -11,7 +11,7 @@ import { getMessagesWithin } from './queries';
  *
  * Craters of the Moon is very far away from those.
  */
-const testData = {
+export const testData = {
   visitorCenter: {
     message: 'TEST Henry M Jackson Visitor Center',
     location: { y: 46.785959632325095, x: -121.73644955422306 },

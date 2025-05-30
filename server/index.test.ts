@@ -3,11 +3,23 @@
 import { testClient } from 'hono/testing';
 import {dbServer} from './index';
 import { expect, test, describe, beforeAll, mock, afterAll } from 'bun:test';
+import { db } from './db/client';
+import { notes } from './db/schema';
+import { testData } from './db/queries.test';
 
 describe('The notes endpoint', () => {
   const realConsole = console;
   
-  beforeAll(() => {
+  beforeAll(async () => {
+      try {
+        console.log('[test/index] getting set up for tests');
+        await db.insert(notes).values(Object.values(testData));
+      } catch (e) {
+        console.error(
+          '[test/index] error inserting test data into database: ',
+          e,
+        );
+      }
     global.console = {
       ...console,
       log: mock(),
@@ -22,8 +34,8 @@ describe('The notes endpoint', () => {
   const getParams = {
     altitude: '200000',
     fieldOfView: '50',
-    latitude: '41.15611',
-    longitude: '-81.41418',
+    latitude: testData.cratersOfTheMoon.location.y.toFixed(5).toString(),
+    longitude: testData.cratersOfTheMoon.location.x.toFixed(5).toString(),
   };
 
   describe('for GET requests', () => {
@@ -35,7 +47,6 @@ describe('The notes endpoint', () => {
       expect(res.status).toBe(200);
 
       const body = await res.json();
-      console.log(body);
       expect(body).toBeArray();
       expect(body).not.toHaveProperty('error');
     });
