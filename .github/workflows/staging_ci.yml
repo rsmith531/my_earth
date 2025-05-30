@@ -33,6 +33,10 @@ jobs:
       - name: Check server type errors
         run: bun run tsc
         working-directory: ./server
+        
+      - name: Grant execute permissions to init.sh
+        run: chmod +x ./db/init.sh
+        working-directory: ./server
 
       - name: Start PostgreSQL container and run Drizzle migrations
         run: bun run db-create
