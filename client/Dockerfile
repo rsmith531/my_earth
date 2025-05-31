@@ -1,3 +1,5 @@
+# client\Dockerfile
+
 # ------- Stage 1: Build the client application -------
 FROM oven/bun:1.2.15-alpine AS builder
 
