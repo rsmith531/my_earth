@@ -1,17 +1,13 @@
 {
-    "name": "my-earth-monorepo",
-    "private": true,
-    "workspaces": [
-      "client",
-      "server",
-      "moderation"
-    ],
-    "devDependencies": {
-        "@types/bun": "latest",
-        "concurrently": "^9.1.2",
-        "@biomejs/biome": "1.9.4",
-        "knip": "^5.51.1",
-        "vitest": "^3.1.4",
-      "typescript": "^5.8.3"
-    }
+  "name": "my-earth-monorepo",
+  "private": true,
+  "workspaces": ["client", "server", "moderation"],
+  "devDependencies": {
+    "@types/bun": "latest",
+    "concurrently": "^9.1.2",
+    "@biomejs/biome": "1.9.4",
+    "knip": "^5.51.1",
+    "vitest": "^3.1.4",
+    "typescript": "^5.8.3"
   }
+}

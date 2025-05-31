@@ -1,6 +1,6 @@
 // components\section\AddReasonForm.tsx
 
-import { z } from 'zod';
+import type { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { Button } from '@components/ui/button';
@@ -22,7 +22,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@components/ui/tooltip';
-import { saveNoteValidationSchema } from '@server/index';
+import { saveNoteValidationSchema } from '@server/utils';
 
 function AddReasonForm({
   submitCallback,
