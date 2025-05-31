@@ -1,5 +1,9 @@
 # client\Dockerfile
 
+# TODO: update so that it only works with the server project instead of
+# involving the moderation and client projects that are in the monorepo. Also
+# explore optimizations and best practices.
+
 # ------- Stage 1: Build the client application -------
 FROM oven/bun:1.2.15-alpine AS builder
 
