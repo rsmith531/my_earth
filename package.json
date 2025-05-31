@@ -1,5 +1,5 @@
 {
-  "name": "my-earth-monorepo",
+  "name": "my-earth",
   "private": true,
   "workspaces": ["client", "server", "moderation"],
   "devDependencies": {
