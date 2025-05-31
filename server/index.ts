@@ -12,28 +12,12 @@ import {
   notes,
 } from './db/schema';
 import { z } from 'zod';
-import { getVisibleRadius } from './utils';
+import { getVisibleRadius, saveNoteValidationSchema } from './utils';
 import { getMessagesWithin } from './db/queries';
 import { clustersKmeans } from '@turf/clusters-kmeans';
 import { featureCollection, point } from '@turf/helpers';
 
-export const saveNoteValidationSchema = z.object({
-  message: z.string().min(1).max(300).trim(),
-  latitude: z
-    .number({
-      required_error: 'Please wait to send your message until we can attach it to your location.',
-    })
-    .refine((val) => val !== 0, {
-      message: 'Please wait to send your message until we can attach it to your location.',
-    }),
-  longitude: z
-    .number({
-      required_error: 'Please wait to send your message until we can attach it to your location.',
-    })
-    .refine((val) => val !== 0, {
-      message: 'Please wait to send your message until we can attach it to your location.',
-    }),
-});
+console.log('[server] API endpoint is activating');
 
 const app = new Hono()
   .use('*', cors())
@@ -312,6 +296,8 @@ Bun.serve({
   fetch: app.fetch,
   port: process.env.API_SERVER_PORT,
 });
+
+console.log('[server] API endpoint is ready to accept connections');
 
 export { app as dbServer };
 export type AppType = typeof app;

@@ -1,5 +1,7 @@
 // TODO: write tests and docs
 
+import { z } from 'zod';
+
 export async function getVisibleRadius(
   altitude: string,
   fov: string,
@@ -56,3 +58,25 @@ export async function getVisibleRadius(
     );
   }
 }
+
+export const saveNoteValidationSchema = z.object({
+  message: z.string().min(1).max(300).trim(),
+  latitude: z
+    .number({
+      required_error:
+        'Please wait to send your message until we can attach it to your location.',
+    })
+    .refine((val) => val !== 0, {
+      message:
+        'Please wait to send your message until we can attach it to your location.',
+    }),
+  longitude: z
+    .number({
+      required_error:
+        'Please wait to send your message until we can attach it to your location.',
+    })
+    .refine((val) => val !== 0, {
+      message:
+        'Please wait to send your message until we can attach it to your location.',
+    }),
+});

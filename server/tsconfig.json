@@ -10,6 +10,7 @@
 
     // Bundler mode
     "moduleResolution": "bundler",
+    "outDir": "./dist",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
@@ -24,5 +25,7 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
-  }
+  },
+  "include": ["./**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }
