@@ -1,6 +1,12 @@
 # ------- Stage 1: Build the client application -------
 FROM oven/bun:1.2.15-alpine AS builder
 
+# declare a build-time argument for the VITE_DATABASE_ENDPOINT env var
+ARG VITE_DATABASE_ENDPOINT
+
+# set it as an env var for the vite build process to see
+ENV VITE_DATABASE_ENDPOINT=${VITE_DATABASE_ENDPOINT}
+
 # set the working directory INSIDE the container
 WORKDIR /deployment
 
@@ -16,7 +22,6 @@ COPY moderation/ moderation/
 RUN bun install --frozen-lockfile
 
 # build the tanstack router app
-# WORKDIR /deployment/client
 RUN bun --filter 'client' build
 
 # ------- Stage 2: serve the app with nginx -------
@@ -25,7 +30,7 @@ FROM nginx:alpine AS runner
 # copy the built client application from the builder stage to the nginx server
 COPY --from=builder /deployment/client/dist /usr/share/nginx/html
 
-# Expose the port Nginx listens on (default HTTP port).
+# expose the port Nginx listens on (default HTTP port).
 EXPOSE 80
 
 # Command to start Nginx in the foreground.
