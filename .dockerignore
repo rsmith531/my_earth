@@ -1,0 +1,19 @@
+.git
+.gitignore
+.DS_Store
+.env
+.env.*
+node_modules/
+*/node_modules/
+dist/
+*/dist/
+npm-debug.log
+yarn-error.log
+.bun/
+*.bun
+# Other project specific temp/cache files
+.vscode/
+.idea/
+*.log
+tmp/
+temp/
