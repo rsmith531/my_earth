@@ -68,9 +68,9 @@ jobs:
         run: bun test
         working-directory: ./client
 
-  # Only run if build-and-test succeeds
+  # Only run if run-tests succeeds
   merge-to-production:
-    needs: build-and-test
+    needs: run-tests
     runs-on: ubuntu-latest
     permissions:
       contents: write
