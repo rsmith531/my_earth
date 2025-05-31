@@ -1,0 +1,93 @@
+name: Staging CI
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      API_SERVER_PORT: ${{ secrets.API_SERVER_PORT }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Setup Docker Buildx (for DB container)
+        uses: docker/setup-buildx-action@v3
+
+      # --- Server Checks ---
+
+      - name: Check server type errors
+        run: bun run tsc
+        working-directory: ./server
+        
+      - name: Grant execute permissions to init.sh
+        run: chmod +x ./db/init.sh
+        working-directory: ./server
+
+      - name: Start PostgreSQL container
+        run: bun run db-start
+        working-directory: ./server
+
+      - name: Wait for PostgreSQL server to warm up
+        run: sleep 2s
+        working-directory: ./server
+
+      - name: Push drizzle migrations
+        run: bunx drizzle-kit generate --config=./db/drizzle.config.ts && bunx drizzle-kit push --config=./db/drizzle.config.ts
+        working-directory: ./server
+
+      - name: Run server tests
+        run: bun test
+        working-directory: ./server
+
+      - name: Stop PostgreSQL container
+        if: always()
+        run: docker rm -f my_earth_db
+        working-directory: ./server
+
+      # --- Client Checks ---
+      - name: Check client type errors
+        run: bun run tsc
+        working-directory: ./client
+
+      - name: Run client tests
+        run: bun test
+        working-directory: ./client
+
+  # Only run if build-and-test succeeds
+  merge-to-main:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-branches: |
+            main
+            staging
+
+      - name: Merge staging into main
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email github-actions[bot]@users.noreply.github.com
+          git fetch origin staging
+          git merge origin/staging -m "Merge staging into main after successful CI"
+          git push
