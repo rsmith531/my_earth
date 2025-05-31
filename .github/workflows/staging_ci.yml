@@ -6,7 +6,7 @@ on:
       - staging
 
 jobs:
-  build-and-test:
+  run-tests:
     runs-on: ubuntu-latest
     environment: staging
     env:
@@ -74,6 +74,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    # only run this job if it's triggered by a push to staging
+    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
     steps:
       - name: Checkout production
         uses: actions/checkout@v4
