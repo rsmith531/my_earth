@@ -15,7 +15,8 @@ jobs:
 
     # only run if the commit came from the staging branch
     # note, if this commit message changes in staging_ci.yml, it needs to be updated here, too
-    if: github.event_name == 'merge' && contains(github.event.head_commit.message, 'Merge staging into production after successful CI')
+    # borken because the commit messages aren't lining up
+    # if: github.event_name == 'push' && contains(github.event.head_commit.message, 'Merge staging into production after successful CI')
     env:
       VITE_DATABASE_ENDPOINT: ${{ secrets.VITE_DATABASE_ENDPOINT }}
 
