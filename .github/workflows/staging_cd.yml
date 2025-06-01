@@ -83,9 +83,6 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           envs: |
-              GITHUB_REPOSITORY=${{ github.repository }}
-              GHCR_USERNAME=${{ env.GHCR_USERNAME }}
-              GHCR_TOKEN=${{ env.GHCR_TOKEN }}
               API_SERVER_PORT=${{ env.API_SERVER_PORT }}
               DATABASE_URL=${{ env.DATABASE_URL }}
               PG_PW=${{ env.POSTGRES_PASSWORD }}
@@ -96,7 +93,7 @@ jobs:
             echo "repo ${{ env.GITHUB_REPOSITORY }}"
             mkdir -p "${{ env.DEPLOY_PATH }}"
             cd "${{ env.DEPLOY_PATH }}"
-            echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
+            echo "${{ env.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ env.GHCR_USERNAME }}" --password-stdin
             docker compose pull
             docker compose up -d --force-recreate
             docker image prune -f
