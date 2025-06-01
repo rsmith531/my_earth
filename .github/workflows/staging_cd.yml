@@ -106,5 +106,5 @@ jobs:
             cd "${{ env.DEPLOY_PATH }}"
             echo "${{ env.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ env.GHCR_USERNAME }}" --password-stdin
             docker compose pull
-            docker compose up -d --force-recreate
+            docker compose up -d --force-recreate --remove-orphans
             docker image prune -f
