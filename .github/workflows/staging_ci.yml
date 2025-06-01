@@ -41,21 +41,13 @@ jobs:
         run: bun run db-reset
         working-directory: ./server
 
-      # - name: Wait for PostgreSQL server to warm up
-      #   run: sleep 2s
-      #   working-directory: ./server
-
-      # - name: Push drizzle migrations
-      #   run: bunx drizzle-kit generate --config=./db/drizzle.config.ts && bunx drizzle-kit push --config=./db/drizzle.config.ts
-      #   working-directory: ./server
-
       - name: Run server tests
         run: bun test
         working-directory: ./server
 
       - name: Stop PostgreSQL container
         if: always()
-        run: docker rm -f my_earth_db
+        run: docker compose down -v postgres_db
         working-directory: ./server
 
       # --- Client Checks ---
