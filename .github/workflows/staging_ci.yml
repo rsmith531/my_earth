@@ -38,7 +38,9 @@ jobs:
         working-directory: ./server
 
       - name: Start PostgreSQL container
-        run: bun run db-reset
+        run: |
+          echo "connection string is ${{ secrets.DATABASE_URL }}"
+          bun run db-reset
         working-directory: ./server
 
       # - name: Wait for PostgreSQL server to warm up
