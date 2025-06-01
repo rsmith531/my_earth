@@ -94,8 +94,7 @@ jobs:
           script: |
             mkdir -p "${{ env.DEPLOY_PATH }}"
             cd "${{ env.DEPLOY_PATH }}"
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
-            echo "TODO: get the docker images from the registry"
+            echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
             docker compose pull
             docker compose up -d --force-recreate
             docker image prune -f
