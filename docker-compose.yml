@@ -29,9 +29,6 @@ services:
       POSTGRES_PASSWORD: ${PG_PW}
       POSTGRES_DB: ${PG_DB}
       POSTGRES_USER: ${PG_USER}
-    ports:
-      # expose port 4000 for the caddyfile
-      - "4000:80"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
