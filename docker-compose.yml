@@ -7,6 +7,8 @@ services:
     environment:
       API_SERVER_PORT: ${API_SERVER_PORT}
       DATABASE_URL: ${DATABASE_URL}
+    ports:
+      - "${API_SERVER_PORT}:${API_SERVER_PORT}"
     restart: unless-stopped
     depends_on:
       postgres_db:
@@ -16,6 +18,9 @@ services:
     image: ghcr.io/${GITHUB_REPOSITORY}/client:latest
     container_name: my_earth_client
     restart: unless-stopped
+    ports:
+      # expose port 4000 for the caddyfile
+      - "4000:80"
 
   postgres_db:
     image: postgis/postgis:17-3.5
