@@ -1,0 +1,101 @@
+# .github\workflows\staging_cd.yml
+
+name: Staging CD
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  build-and-push-images:
+    runs-on: ubuntu-latest
+    environment: staging
+    permissions:
+      contents: read
+      packages: write
+
+    env:
+      VITE_DATABASE_ENDPOINT: ${{ secrets.VITE_DATABASE_ENDPOINT }}
+      DEPLOY_PATH: /projects/my_earth/staging
+      # For logging into GHCR on VPS
+      GHCR_USERNAME: ${{ github.actor }}
+      GHCR_TOKEN: ${{ secrets.GHCR_PAT }} 
+      # database envs
+      POSTGRES_PASSWORD: ${{ secrets.PG_PW }}
+      POSTGRES_DB: ${{ secrets.PG_DB }}
+      POSTGRES_USER: ${{ secrets.PG_USER }}
+      API_SERVER_PORT: ${{ secrets.API_SERVER_PORT }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+
+      - name: Build and push server image
+        id: build-server
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./server/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository }}/server:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push client image
+        id: build-client
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./client/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository }}/client:latest
+          build-args: VITE_DATABASE_ENDPOINT=${{ env.VITE_DATABASE_ENDPOINT }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Copy docker-compose.yml to VPS
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "docker-compose.yml"
+          target: ${{ env.DEPLOY_PATH }}/
+
+      - name: Update Docker images on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+        envs: |
+            GITHUB_REPOSITORY=${{ github.repository }}
+            GHCR_USERNAME=${{ env.GHCR_USERNAME }}
+            GHCR_TOKEN=${{ env.GHCR_TOKEN }}
+            API_SERVER_PORT=${{ env.API_SERVER_PORT }}
+            DATABASE_URL=${{ env.DATABASE_URL }}
+            PG_PW=${{ env.POSTGRES_PASSWORD }}
+            PG_DB=${{ env.POSTGRES_DB }}
+            PG_USER=${{ env.POSTGRES_USER }}
+        script: |
+          mkdir -p "${{ env.DEPLOY_PATH }}"
+          cd "${{ env.DEPLOY_PATH }}"
+          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+          echo "TODO: get the docker images from the registry"
+          docker compose pull
+          docker compose up -d --force-recreate
+          docker image prune -f
