@@ -47,7 +47,7 @@ jobs:
 
       - name: Stop PostgreSQL container
         if: always()
-        run: docker compose down -v postgres_db
+        run: docker compose down -v database
         working-directory: ./server
 
       # --- Client Checks ---

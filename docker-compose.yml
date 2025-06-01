@@ -11,7 +11,7 @@ services:
       - "${API_SERVER_PORT}:${API_SERVER_PORT}"
     restart: unless-stopped
     depends_on:
-      postgres_db:
+      database:
         condition: service_healthy
 
   client:
@@ -22,13 +22,16 @@ services:
       # expose port 4000 for the caddyfile
       - "4000:80"
 
-  postgres_db:
+  database:
     image: postgis/postgis:17-3.5
     container_name: my_earth_db
     environment:
       POSTGRES_PASSWORD: ${PG_PW}
       POSTGRES_DB: ${PG_DB}
       POSTGRES_USER: ${PG_USER}
+    ports:
+      # expose port 4000 for the caddyfile
+      - "4000:80"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
