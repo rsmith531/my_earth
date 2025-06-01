@@ -44,28 +44,28 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push server image
-        id: build-server
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./server/Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository }}/server:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      # - name: Build and push server image
+      #   id: build-server
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: .
+      #     file: ./server/Dockerfile
+      #     push: true
+      #     tags: ghcr.io/${{ github.repository }}/server:latest
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
 
-      - name: Build and push client image
-        id: build-client
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./client/Dockerfile
-          push: true
-          tags: ghcr.io/${{ github.repository }}/client:latest
-          build-args: VITE_DATABASE_ENDPOINT=${{ env.VITE_DATABASE_ENDPOINT }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      # - name: Build and push client image
+      #   id: build-client
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: .
+      #     file: ./client/Dockerfile
+      #     push: true
+      #     tags: ghcr.io/${{ github.repository }}/client:latest
+      #     build-args: VITE_DATABASE_ENDPOINT=${{ env.VITE_DATABASE_ENDPOINT }}
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
 
       - name: Copy docker-compose.yml to VPS
         uses: appleboy/scp-action@v1
