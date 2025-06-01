@@ -1,14 +1,14 @@
-name: Production CD
+name: Staging CD
 
 on:
   push:
     branches:
-      - production
+      - staging
 
 jobs:
   build-and-push-images:
     runs-on: ubuntu-latest
-    environment: production
+    environment: staging
     permissions:
       contents: read
       packages: write
@@ -20,7 +20,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: production
+          ref: staging
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Docker Buildx
@@ -51,7 +51,7 @@ jobs:
           context: .
           file: ./client/Dockerfile
           push: true
-          tags: ghcr.io/${{ github.repository }}/client:latest #
+          tags: ghcr.io/${{ github.repository }}/client:latest
           build-args: VITE_DATABASE_ENDPOINT=${{ env.VITE_DATABASE_ENDPOINT }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
