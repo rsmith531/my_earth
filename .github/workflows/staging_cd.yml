@@ -92,9 +92,11 @@ jobs:
               PG_DB=${{ env.POSTGRES_DB }}
               PG_USER=${{ env.POSTGRES_USER }}
           script: |
-            mkdir -p "${{ env.DEPLOY_PATH }}"
-            cd "${{ env.DEPLOY_PATH }}"
-            echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USERNAME}" --password-stdin
+            echo "deploy path $DEPLOY_PATH"
+            echo "repo $GITHUB_REPOSITORY"
+            mkdir -p "$DEPLOY_PATH"
+            cd "$DEPLOY_PATH"
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USERNAME" --password-stdin
             docker compose pull
             docker compose up -d --force-recreate
             docker image prune -f
