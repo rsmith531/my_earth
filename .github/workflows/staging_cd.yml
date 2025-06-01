@@ -88,6 +88,7 @@ jobs:
               PG_PW=${{ env.POSTGRES_PASSWORD }}
               PG_DB=${{ env.POSTGRES_DB }}
               PG_USER=${{ env.POSTGRES_USER }}
+              GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
           script: |
             echo "deploy path ${{ env.DEPLOY_PATH }}"
             echo "repo ${{ env.GITHUB_REPOSITORY }}"
