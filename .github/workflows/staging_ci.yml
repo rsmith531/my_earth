@@ -1,7 +1,7 @@
 name: Staging CI
 
 on:
-  push:
+  pull_request:
     branches:
       - staging
 
@@ -67,27 +67,3 @@ jobs:
       - name: Run client tests
         run: bun test
         working-directory: ./client
-
-  # Only run if run-tests succeeds
-  merge-to-production:
-    needs: run-tests
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    # only run this job if it's triggered by a push to staging
-    if: github.event_name == 'push' && github.ref == 'refs/heads/staging'
-    steps:
-      - name: Checkout production
-        uses: actions/checkout@v4
-        with:
-          ref: production
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Merge staging into production
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email github-actions[bot]@users.noreply.github.com
-          git fetch origin production
-          git fetch origin staging
-          git merge origin/staging -m "Merge staging into production after successful CI"
-          git push
