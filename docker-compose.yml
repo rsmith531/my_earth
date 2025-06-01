@@ -1,0 +1,44 @@
+# docker-compose.yml
+
+services:
+  server:
+    image: ghcr.io/${GITHUB_REPOSITORY}/server:latest
+    container_name: my_earth_server
+    environment:
+      API_SERVER_PORT: ${API_SERVER_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+    restart: unless-stopped
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+
+  client:
+    image: ghcr.io/${GITHUB_REPOSITORY}/client:latest
+    container_name: my_earth_client
+    restart: unless-stopped
+
+  postgres_db:
+    image: postgis/postgis:17-3.5
+    container_name: my_earth_db
+    environment:
+      POSTGRES_PASSWORD: ${PG_PW}
+      POSTGRES_DB: ${PG_DB}
+      POSTGRES_USER: ${PG_USER}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "4002:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER} -d ${PG_DB}"]
+      interval: 0.5s
+      timeout: 0.5s
+      retries: 20
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  default:
+    driver: bridge
