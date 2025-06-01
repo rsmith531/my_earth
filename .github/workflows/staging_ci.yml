@@ -13,7 +13,7 @@ jobs:
       PG_PW: ${{ secrets.PG_PW }}
       PG_DB: ${{ secrets.PG_DB }}
       PG_USER: ${{ secrets.PG_USER }}
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL: postgresql://${{ secrets.PG_USER }}:${{ secrets.PG_PW }}@localhost:4002/${{ secrets.PG_DB }}
       API_SERVER_PORT: ${{ secrets.API_SERVER_PORT }}
 
     steps:
@@ -38,9 +38,7 @@ jobs:
         working-directory: ./server
 
       - name: Start PostgreSQL container
-        run: |
-          echo "connection string is ${{ secrets.DATABASE_URL }}"
-          bun run db-reset
+        run: bun run db-reset
         working-directory: ./server
 
       # - name: Wait for PostgreSQL server to warm up
