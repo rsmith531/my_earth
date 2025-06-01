@@ -17,3 +17,12 @@
 1. `bun run dev`
 
 2. A lightweight database dashboard is available at https://local.drizzle.studio/.
+
+# Troubleshooting
+
+## `EADDRINUSE`
+
+```bash
+netstat -aon | findstr <port>
+taskkill /f /pid <PID>
+```

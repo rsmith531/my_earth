@@ -10,7 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: staging
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      PG_PW: ${{ secrets.PG_PW }}
+      PG_DB: ${{ secrets.PG_DB }}
+      PG_USER: ${{ secrets.PG_USER }}
+      DATABASE_URL: postgresql://${{ secrets.PG_USER }}:${{ secrets.PG_PW }}@localhost:4002/${{ secrets.PG_DB }}
       API_SERVER_PORT: ${{ secrets.API_SERVER_PORT }}
 
     steps:
@@ -35,15 +38,7 @@ jobs:
         working-directory: ./server
 
       - name: Start PostgreSQL container
-        run: bun run db-start
-        working-directory: ./server
-
-      - name: Wait for PostgreSQL server to warm up
-        run: sleep 2s
-        working-directory: ./server
-
-      - name: Push drizzle migrations
-        run: bunx drizzle-kit generate --config=./db/drizzle.config.ts && bunx drizzle-kit push --config=./db/drizzle.config.ts
+        run: bun run db-reset
         working-directory: ./server
 
       - name: Run server tests
@@ -52,7 +47,7 @@ jobs:
 
       - name: Stop PostgreSQL container
         if: always()
-        run: docker rm -f my_earth_db
+        run: docker compose down -v postgres_db
         working-directory: ./server
 
       # --- Client Checks ---

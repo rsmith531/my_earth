@@ -77,25 +77,25 @@ jobs:
           target: ${{ env.DEPLOY_PATH }}/
 
       - name: Update Docker images on VPS
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-        envs: |
-            GITHUB_REPOSITORY=${{ github.repository }}
-            GHCR_USERNAME=${{ env.GHCR_USERNAME }}
-            GHCR_TOKEN=${{ env.GHCR_TOKEN }}
-            API_SERVER_PORT=${{ env.API_SERVER_PORT }}
-            DATABASE_URL=${{ env.DATABASE_URL }}
-            PG_PW=${{ env.POSTGRES_PASSWORD }}
-            PG_DB=${{ env.POSTGRES_DB }}
-            PG_USER=${{ env.POSTGRES_USER }}
-        script: |
-          mkdir -p "${{ env.DEPLOY_PATH }}"
-          cd "${{ env.DEPLOY_PATH }}"
-          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
-          echo "TODO: get the docker images from the registry"
-          docker compose pull
-          docker compose up -d --force-recreate
-          docker image prune -f
+          envs: |
+              GITHUB_REPOSITORY=${{ github.repository }}
+              GHCR_USERNAME=${{ env.GHCR_USERNAME }}
+              GHCR_TOKEN=${{ env.GHCR_TOKEN }}
+              API_SERVER_PORT=${{ env.API_SERVER_PORT }}
+              DATABASE_URL=${{ env.DATABASE_URL }}
+              PG_PW=${{ env.POSTGRES_PASSWORD }}
+              PG_DB=${{ env.POSTGRES_DB }}
+              PG_USER=${{ env.POSTGRES_USER }}
+          script: |
+            mkdir -p "${{ env.DEPLOY_PATH }}"
+            cd "${{ env.DEPLOY_PATH }}"
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+            echo "TODO: get the docker images from the registry"
+            docker compose pull
+            docker compose up -d --force-recreate
+            docker image prune -f
