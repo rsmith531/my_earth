@@ -10,9 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: staging
     env:
-      POSTGRES_PASSWORD: ${{ secrets.PG_PW }}
-      POSTGRES_DB: ${{ secrets.PG_DB }}
-      POSTGRES_USER: ${{ secrets.PG_USER }}
+      PG_PW: ${{ secrets.PG_PW }}
+      PG_DB: ${{ secrets.PG_DB }}
+      PG_USER: ${{ secrets.PG_USER }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       API_SERVER_PORT: ${{ secrets.API_SERVER_PORT }}
 
