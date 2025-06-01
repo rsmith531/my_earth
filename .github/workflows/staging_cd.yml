@@ -27,6 +27,7 @@ jobs:
       POSTGRES_USER: ${{ secrets.PG_USER }}
       API_SERVER_PORT: ${{ secrets.API_SERVER_PORT }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
 
     steps:
       - name: Checkout code
@@ -92,6 +93,15 @@ jobs:
           script: |
             echo "deploy path ${{ env.DEPLOY_PATH }}"
             echo "repo ${{ env.GITHUB_REPOSITORY }}"
+
+            # stupid way to get the env vars to the docker compose file
+            export API_SERVER_PORT="${{ env.API_SERVER_PORT }}"
+            export DATABASE_URL="${{ env.DATABASE_URL }}"
+            export PG_PW="${{ env.POSTGRES_PASSWORD }}"
+            export PG_DB="${{ env.POSTGRES_DB }}"
+            export PG_USER="${{ env.POSTGRES_USER }}"
+            export GITHUB_REPOSITORY="${{ env.GITHUB_REPOSITORY }}"
+            
             mkdir -p "${{ env.DEPLOY_PATH }}"
             cd "${{ env.DEPLOY_PATH }}"
             echo "${{ env.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ env.GHCR_USERNAME }}" --password-stdin
