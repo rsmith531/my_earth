@@ -19,10 +19,6 @@ COPY moderation/ moderation/
 # Install dependencies
 RUN bun install --frozen-lockfile
 
-# install python
-RUN apt-get update
-RUN apt-get install -y python3
-
 RUN bun --filter 'server' build
 
 # ------- Stage 2: Run the Hono server -------
@@ -34,6 +30,9 @@ WORKDIR /deployment/server
 
 # copy only the dist files from the build stage for production
 COPY --from=builder /deployment/server/dist ./dist
+
+# install python, alpine distro uses apk instead of apt
+RUN apk update && apk add python3
 
 # Expose the port your Hono server listens on.
 # API_SERVER_PORT will be provided at runtime via Docker Compose or environment variables.
