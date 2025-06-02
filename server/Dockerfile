@@ -31,6 +31,9 @@ WORKDIR /deployment/server
 # copy only the dist files from the build stage for production
 COPY --from=builder /deployment/server/dist ./dist
 
+# copy the python script, too
+COPY --from=builder /deployment/server/getVisibleSurfaceRadius.py ./
+
 # install python, alpine distro uses apk instead of apt
 RUN apk update && apk add python3
 
