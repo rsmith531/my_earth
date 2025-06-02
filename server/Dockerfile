@@ -19,6 +19,10 @@ COPY moderation/ moderation/
 # Install dependencies
 RUN bun install --frozen-lockfile
 
+# install python
+RUN apt-get update
+RUN apt-get install -y python3
+
 RUN bun --filter 'server' build
 
 # ------- Stage 2: Run the Hono server -------
