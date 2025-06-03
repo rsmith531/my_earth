@@ -34,5 +34,6 @@ jobs:
           username: ${{ env.VPS_USERNAME }}
           key: ${{ env.SSH_PRIVATE_KEY }}
           script: |
-            docker exec my_earth_server bunx drizzle-kit generate --config "db/drizzle.config.ts"
-            docker exec my_earth_server bunx drizzle-kit push --config "db/drizzle.config.ts"
+            docker exec sh -c "bun add drizzle-orm && \
+                bunx drizzle-kit generate --config 'db/drizzle.config.ts' && \
+                bunx drizzle-kit push --config 'db/drizzle.config.ts'"
