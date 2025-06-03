@@ -1,0 +1,38 @@
+name: Generate and Apply Migrations
+
+on:
+  push:
+    branches:
+      - staging
+    paths:
+      # trigger this action if the schema.ts file is updated
+      - 'server/db/schema.ts'
+  workflow_dispatch: # or manually from the actions tab
+
+jobs:
+  run-migrations:
+    runs-on: ubuntu-latest
+    environment: staging
+    permissions:
+      contents: read
+
+    env:
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USERNAME: ${{ secrets.VPS_USERNAME }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: staging
+
+      - name: Run Drizzle Migrations on VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ env.VPS_HOST }}
+          username: ${{ env.VPS_USERNAME }}
+          key: ${{ env.SSH_PRIVATE_KEY }}
+          script: |
+            docker exec my_earth_server bunx drizzle-kit generate --config "db/drizzle.config.ts"
+            docker exec my_earth_server bunx drizzle-kit push --config "db/drizzle.config.ts"
