@@ -34,6 +34,10 @@ COPY --from=builder /deployment/server/dist ./dist
 # copy the python script, too
 COPY --from=builder /deployment/server/getVisibleSurfaceRadius.py ./
 
+# copy database files so they can be used to generate migrations
+COPY --from=builder /deployment/server/db/drizzle.config.ts ./db/drizzle.config.ts
+COPY --from=builder /deployment/server/db/schema.ts ./db/schema.ts
+
 # install python, alpine distro uses apk instead of apt
 RUN apk update && apk add python3
 
