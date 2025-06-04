@@ -1,3 +1,5 @@
+# .github\workflows\apply_migrations.yml
+
 name: Generate and Apply Migrations
 
 on:

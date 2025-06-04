@@ -1,3 +1,5 @@
+// client\components\page\Home.stories.tsx
+
 import type { Meta, StoryObj } from '@storybook/react';
 import { Home } from './Home';
 import { demoNotes } from '../../.storybook/demoData';
