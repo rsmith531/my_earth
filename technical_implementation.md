@@ -83,7 +83,33 @@ After much deliberation, it turned out I just needed to perform three simple geo
 
 #### The Visible Portion of the Earth's Surface
 
-- Turf.js
+The world is a pretty big place, and the user's viewpoint can only see so much of it at any one time. I decided I would try optimizing the data fetching by only getting notes within the user's viewport. PostGIS has a method called `ST_DWithin` that gets all the rows that are within the radius of a given point. All I had to do was calculate the radius from two known values: the field of view of the viewpoint and the altitude. Trying to calculate this was bending my brain, until I shifted my mental model out of the 3D space and into the 2D.
+
+<insert picture here>
+
+This let me break down the calculation into three stages:
+
+1. Using half the field of view to create a right triangle, calculate the length of the hypotenuse.
+
+2. Sum the altitude with the Earth's radius to get the length of side *a*, the calculated hypotenuse as side *b*, and the halved FOV as angle A. These values are used to calculate the angle at the Earth's center formed by the two legs that meet the legs of the triangle from the viewpoint.
+
+3. calculate the arc length using this angle and the Earth's radius to get the radius that describes the circular portion of the Earth's surface visible from the viewpoint.
+
+This formula does not account for three factors:
+
+1. The viewport is actually a rectangle, so the field of view actually changes around the viewport, but the formula assumes the viewpoint's field of view is uniform.
+
+2. The Earth [is not a perfect sphere](https://oceanservice.noaa.gov/facts/geoid.html), but the formula assumes it is.
+
+3. The far edge of the field of view actually extends vertically further than the altitude of the viewpoint because of the Earth's curvature, so the camera could actually see a little further than this formula reports.
+
+#### Clustering to Avoid Clusters
+
+The database query that fetches the notes to display on the planet actually returns three times the number of results requested (assuming there are enough). The reason is that randomly selecting *n* notes could end up returning all results that are within a small, clustered space of the overall area. More likely is the potential that they would be clustered in pockets instead of evenly distributed across the requested area.
+
+That doesn't make for a very interesting view. If the query returns more results than the user requested, they are subjected to a [*k*-means clustering](https://en.wikipedia.org/wiki/K-means_clustering) algorithm implemented by [Turf.js](https://turfjs.org/docs/api/clustersKmeans) before being sent to the user. The algorithm creates the same amount of clusters as the amount of results requested and the user gets back the centroid of each cluster.
+
+What that looks like to the user is a more evenly distributed set of notes across the area they are viewing.
 
 #### Debouncing versus Throttling
 
@@ -95,6 +121,6 @@ The difference was that the first case required some requests in the stream to g
 
 #### An Interactive Planet
 
-- React-globe.gl
+The centerpiece of the UI is the big globe in a skybox (spacebox?). I couldn't have accomplished it without [react-globe.gl](https://vasturiano.github.io/react-globe.gl/). My goal was to let users see the notes that they write show up on the planet and see notes that others have written in the same place that they are now. I was hoping for a little bit of the wow factor of seeing our planet against the backdrop of space to leave the user awestruck and inspired.
 
 ### Closing Thoughts
