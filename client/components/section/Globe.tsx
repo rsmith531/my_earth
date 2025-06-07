@@ -14,6 +14,7 @@ function Globe({
   interactive,
   data,
   reportViewpoint,
+  freezeRender = false,
 }: {
   interactive: boolean;
   data?: { message: string; longitude: number; latitude: number }[];
@@ -28,9 +29,13 @@ function Globe({
     latitude: number;
     longitude: number;
   }) => void;
+  freezeRender?: boolean;
 }) {
   const globeEl = useRef<GlobeMethods | undefined>(undefined);
+  const globeRoot = useRef<HTMLDivElement | null>(null);
   const [autoSpin, setAutoSpin] = useState<boolean>(true);
+  const [canvasWidth, setCanvasWidth] = useState<number>(0);
+  const [canvasHeight, setCanvasHeight] = useState<number>(0);
   const [verticalOffset, setVerticalOffset] = useState<number>(
     interactive ? 0 : 500,
   );
@@ -41,11 +46,30 @@ function Globe({
    */
   useEffect(() => {
     if (!globeEl?.current) return;
+
+    if (freezeRender) {
+      // TODO: handle the animation pausing after initial render better than just waiting a few seconds
+      setTimeout(() => {
+        // @ts-expect-error checked to be defined a few lines up
+        globeEl.current.pauseAnimation();
+      }, 5000);
+    }
     globeEl.current.controls().autoRotate = autoSpin;
     globeEl.current.controls().autoRotateSpeed = 0.1;
   }, [autoSpin]);
 
   const isInitialMount = useRef(true);
+
+  /**
+   * resize the canvas to the size of the viewport
+   */
+  useEffect(() => {
+    if (!globeRoot.current) return;
+    const { offsetWidth, offsetHeight } = globeRoot.current;
+    setCanvasWidth(offsetWidth);
+    setCanvasHeight(offsetHeight);
+  }, []);
+
   /**
    * makes the globe start spinning again when the view is reset
    */
@@ -167,9 +191,7 @@ function Globe({
         // https://threejs.org/docs/#api/en/cameras/PerspectiveCamera.fov
         // https://github.com/vasturiano/react-globe.gl?tab=readme-ov-file#render-control
         fov: globe.camera().fov,
-        altitude: Math.floor(
-          convertGRUsToMeters(pov.altitude),
-        ),
+        altitude: Math.floor(convertGRUsToMeters(pov.altitude)),
         latitude: +pov.lat.toFixed(5),
         longitude: +pov.lng.toFixed(5),
       });
@@ -203,11 +225,20 @@ function Globe({
   }, [globeMaterial]);
 
   return (
-    <div data-testid={'globe-root-element'} className="cursor-move">
+    <div
+      data-testid={'globe-root-element'}
+      className="cursor-move h-full"
+      ref={globeRoot}
+    >
       <UnderGlobe
         // disable autorotate when the user clicks the globe
         onGlobeClick={() => setAutoSpin(false)}
         globeMaterial={globeMaterial}
+        width={canvasWidth}
+        height={canvasHeight}
+        waitForGlobeReady={false}
+        enablePointerInteraction={!freezeRender}
+        animateIn={!freezeRender}
         ref={globeEl}
         // backgroundImageUrl="//cdn.jsdelivr.net/npm/three-globe/example/img/night-sky.png"
         // backgroundImageUrl="/textures/skybox/night-sky.png"
