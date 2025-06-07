@@ -20,7 +20,7 @@ import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
  */
 function Article({ content }: { content: string }) {
   return (
-    <div className="relative py-12">
+    <div className="relative py-12 min-h-dvh flex items-center">
       <div className="z-0 inset-0 absolute pointer-events-none h-full">
         <Globe
           interactive={false}
