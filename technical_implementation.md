@@ -1,8 +1,10 @@
-## Technical Summary
+<h1 align='center'>Technical Implementation</h1>
+
+## Summary
 
 I am trying to limit the scope of the project so that there is no single part that demands an imbalanced level of attention when compared to any other part of the project. This basically shakes out to writing just a few webpages, having a not-very-complex database schema, limited opportunities for users to input data that needs handling, and minimal amounts of data fetching. That means reduced amount of deliverables focused on any given section, which increases the opportunity to explore a variety of technologies. At a high level, I wanted to learn about [the Tanstack suite](https://tanstack.com/) of web development tools, type-safe APIs, basic [GIS](https://www.usgs.gov/faqs/what-a-geographic-information-system-gis) capabilities in Javascript, and machine learning. Along the way I got to dabble in some small, specialized solutions for less prominent but still very interesting problems.
 
-### Front-end
+## Front-end
 
 The front end is built with [React](https://react.dev/) using the [shadcn](https://ui.shadcn.com/) component library. [Tailwind](https://tailwindcss.com/) made styling easy with its utilities and theming variables. They had also [recently released version 4](https://tailwindcss.com/blog/tailwindcss-v4) when I started work on this project, so it was cool to see the improvements they made over the prior version.
 
@@ -12,9 +14,9 @@ The webpages themselves are served with [Tanstack Router](https://tanstack.com/r
 
 Tanstack also has a state management solution called [Query](https://tanstack.com/query/latest) that I have prior experience with, so that was pretty straightforward to add in for data fetching.
 
-### Back-end
+## Back-end
 
-#### Database
+### Database
 
 Most of my projects use [SQLite](https://www.sqlite.org/) because it's real easy to get working and simple to maintain over the life of the project since you don't have to worry about a database server. I've used [Postgres](https://www.postgresql.org/) in the past with [Supabase](https://supabase.com/), so I thought this would be a good opportunity to explore it further without the hand-holding that Supabase does for you. Plus, it gave me access to the [PostGIS extension](https://postgis.net/) that I'll discuss more about later on.
 
@@ -26,7 +28,7 @@ As it turns out, you can get a Postgres server spun up with minimal fuss by putt
 
 It also provides a great way to generate and apply migrations as the schema evolves and gives very robust Typescript types to build queries and create interfaces with.
 
-#### API Endpoint
+### API Endpoint
 
 To make the database available to the internet at large, I built a simple API out of [Hono](https://hono.dev/):
 
@@ -36,7 +38,7 @@ Zod once again proved its worth by stepping in to validate incoming requests. It
 
 Something I've struggled with in the past is not having type safety between an API and the fetch requests that access it. I had heard of a library called [tRPC](https://trpc.io/docs) that tries to solve this problem, but Hono has [its own built-in answer](https://hono.dev/docs/guides/rpc) so that's what I went with. It was a little bit nuanced since you have to chain the handlers to the app so that the types flow through, and that wasn't made overtly obvious [in the docs](https://hono.dev/docs/guides/rpc#using-rpc-with-larger-applications).
 
-### Machine Learning
+## Machine Learning
 
 Because of the fact that this website is publicly accessible by anyone on the internet, and my knowledge of the [type of people](https://www.youtube.com/watch?v=ROaj3bCpZEM) that frequent the internet, I knew it would be foolhardy to create a place for anyone to write anything and have it on display without any attempt at moderating the content. I also knew I wasn't getting anyone (namely me) to sit on a dashboard and face a deluge of the worst the internet has to offer. Lucky for me, this presented a great opportunity to delve into the world of machine learning and more specifically its natural language processing features.
 
@@ -44,7 +46,7 @@ Because of the fact that this website is publicly accessible by anyone on the in
 
 Working with it turned out to be quite simple, to the point where I felt like it abstracted away a lot of the work that it takes to do machine learning. I plan to augment or replace it with a model I train on data I'm collecting from user submissions to the website. I don't know what that looks like yet, or how monumental it'll turn out to be, but it seems like a straightforward way to immerse myself in an unfamiliar field of expertise.
 
-### Deployment
+## Deployment
 
 The most challenging part of all my projects is getting them deployed; This one was no different. First, I had to figure out what the deployed version was going to look like. Previously I had just copied some build files onto a VPS and used [pm2](https://pm2.io/) to run them, but this time I had a Docker container (the database) to worry about. So I innocently opened the gates unto the world that is containerized applications and stepped in just far enough to learn about [Docker Compose](https://docs.docker.com/compose/), stopping well short of Kubernetes.
 
@@ -60,7 +62,7 @@ This whole rigamarole ate up one whole weekend and then some just to get a stagi
 
 I'd like to further expand on it by implementing a second "production" environment that uses [blue-green deployments](https://en.wikipedia.org/wiki/Blue%E2%80%93green_deployment) to minimize downtime when pushing updates into production.
 
-### Development Tooling
+## Development Tooling
 
 - [Bun](https://bun.sh/):
     - As a package manager: I've heard it making waves as the latest superstar, so I wanted to give it a spin. My conclusion: It definitely works way better than npm and is noticeably faster than Yarn.
@@ -71,9 +73,9 @@ I'd like to further expand on it by implementing a second "production" environme
 - [Knip](https://knip.dev/): Project clutter really grinds my gears. I think it reduces code discoverability, hides bugs, and slows down development in several ways.
 - [Biome](https://biomejs.dev/): Similarly, Biome does a great job on keeping code organized and encourages me to stick to best practices while I'm writing.
 
-### Misc
+## Technical Challenges
 
-#### Interprocess Communication
+### Interprocess Communication
 
 Something that's always been a little mysterious to me is getting two programming languages to talk to each other. Since Python is known to be a data analysis powerhouse, I thought my need for determining how much of the Earth's surface is visible from a given viewpoint would be a great reason to try inter-process communication.
 
@@ -81,7 +83,7 @@ Bun let me run the Python script as a [child process](https://bun.sh/docs/api/sp
 
 After much deliberation, it turned out I just needed to perform three simple geometry calculations to get the number I needed and switching to Python to do that was super overkill, but hey, that's what learning is for I guess.
 
-#### The Visible Portion of the Earth's Surface
+### The Visible Portion of the Earth's Surface
 
 The world is a pretty big place, and the user's viewpoint can only see so much of it at any one time. I decided I would try optimizing the data fetching by only getting notes within the user's viewport. PostGIS has a method called `ST_DWithin` that gets all the rows that are within the radius of a given point. All I had to do was calculate the radius from two known values: the field of view of the viewpoint and the altitude. Trying to calculate this was bending my brain, until I shifted my mental model out of the 3D space and into the 2D.
 
@@ -103,7 +105,7 @@ This formula does not account for three factors:
 
 3. The far edge of the field of view actually extends vertically further than the altitude of the viewpoint because of the Earth's curvature, so the camera could actually see a little further than this formula reports.
 
-#### Clustering to Avoid Clusters
+### Clustering to Avoid Clusters
 
 The database query that fetches the notes to display on the planet actually returns three times the number of results requested (assuming there are enough). The reason is that randomly selecting *n* notes could end up returning all results that are within a small, clustered space of the overall area. More likely is the potential that they would be clustered in pockets instead of evenly distributed across the requested area.
 
@@ -111,7 +113,7 @@ That doesn't make for a very interesting view. If the query returns more results
 
 What that looks like to the user is a more evenly distributed set of notes across the area they are viewing.
 
-#### Debouncing versus Throttling
+### Debouncing versus Throttling
 
 As a user changes the position of their viewpoint over the Earth's surface, new data is fetched. This would mean a new fetch request would go out for every update to the coordinates or altitude, inundating the API endpoint with traffic. I wanted to make it so that a single, most recent request would be sent from a given set of requests. My first thought was that would require a debounce mechanism, but it actually needed throttling.
 
@@ -119,8 +121,8 @@ In another place, the user has a slider that lets them adjust the number of resu
 
 The difference was that the first case required some requests in the stream to get through as the stream continued, and the second case only required the last request in a finite stream to get through. [Tanstack Pacer](https://tanstack.com/pacer/latest/docs/overview) has both of those capabilities and more.
 
-#### An Interactive Planet
+### An Interactive Planet
 
 The centerpiece of the UI is the big globe in a skybox (spacebox?). I couldn't have accomplished it without [react-globe.gl](https://vasturiano.github.io/react-globe.gl/). My goal was to let users see the notes that they write show up on the planet and see notes that others have written in the same place that they are now. I was hoping for a little bit of the wow factor of seeing our planet against the backdrop of space to leave the user awestruck and inspired.
 
-### Closing Thoughts
+## Closing Thoughts
