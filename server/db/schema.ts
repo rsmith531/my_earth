@@ -15,7 +15,7 @@ import {
   pgEnum,
 } from 'drizzle-orm/pg-core';
 
-export const testRole = pgRole('test_role');
+const testRole = pgRole('test_role');
 
 export const notes = pgTable(
   'notes',
@@ -64,7 +64,7 @@ export const notes = pgTable(
   ],
 );
 
-export const moderationStatusEnum = pgEnum('moderation_status', [
+const moderationStatusEnum = pgEnum('moderation_status', [
   'pending', // has been flagged as needing review
   'resolved', // underwent human review and determined unfit for training data
   'labelled', // underwent human review and labelled for ML training
