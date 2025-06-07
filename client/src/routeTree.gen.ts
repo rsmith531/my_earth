@@ -11,9 +11,37 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as TechnicalimplementationImport } from './routes/technical_implementation'
+import { Route as ContributingImport } from './routes/contributing'
+import { Route as ContentpolicyImport } from './routes/content_policy'
+import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
+
+const TechnicalimplementationRoute = TechnicalimplementationImport.update({
+  id: '/technical_implementation',
+  path: '/technical_implementation',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ContributingRoute = ContributingImport.update({
+  id: '/contributing',
+  path: '/contributing',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ContentpolicyRoute = ContentpolicyImport.update({
+  id: '/content_policy',
+  path: '/content_policy',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AboutRoute = AboutImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
@@ -32,6 +60,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutImport
+      parentRoute: typeof rootRoute
+    }
+    '/content_policy': {
+      id: '/content_policy'
+      path: '/content_policy'
+      fullPath: '/content_policy'
+      preLoaderRoute: typeof ContentpolicyImport
+      parentRoute: typeof rootRoute
+    }
+    '/contributing': {
+      id: '/contributing'
+      path: '/contributing'
+      fullPath: '/contributing'
+      preLoaderRoute: typeof ContributingImport
+      parentRoute: typeof rootRoute
+    }
+    '/technical_implementation': {
+      id: '/technical_implementation'
+      path: '/technical_implementation'
+      fullPath: '/technical_implementation'
+      preLoaderRoute: typeof TechnicalimplementationImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -39,32 +95,68 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/content_policy': typeof ContentpolicyRoute
+  '/contributing': typeof ContributingRoute
+  '/technical_implementation': typeof TechnicalimplementationRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/content_policy': typeof ContentpolicyRoute
+  '/contributing': typeof ContributingRoute
+  '/technical_implementation': typeof TechnicalimplementationRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/content_policy': typeof ContentpolicyRoute
+  '/contributing': typeof ContributingRoute
+  '/technical_implementation': typeof TechnicalimplementationRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/content_policy'
+    | '/contributing'
+    | '/technical_implementation'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/content_policy'
+    | '/contributing'
+    | '/technical_implementation'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/content_policy'
+    | '/contributing'
+    | '/technical_implementation'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  ContentpolicyRoute: typeof ContentpolicyRoute
+  ContributingRoute: typeof ContributingRoute
+  TechnicalimplementationRoute: typeof TechnicalimplementationRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  ContentpolicyRoute: ContentpolicyRoute,
+  ContributingRoute: ContributingRoute,
+  TechnicalimplementationRoute: TechnicalimplementationRoute,
 }
 
 export const routeTree = rootRoute
@@ -77,11 +169,27 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/"
+        "/",
+        "/about",
+        "/content_policy",
+        "/contributing",
+        "/technical_implementation"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/about": {
+      "filePath": "about.tsx"
+    },
+    "/content_policy": {
+      "filePath": "content_policy.tsx"
+    },
+    "/contributing": {
+      "filePath": "contributing.tsx"
+    },
+    "/technical_implementation": {
+      "filePath": "technical_implementation.tsx"
     }
   }
 }
