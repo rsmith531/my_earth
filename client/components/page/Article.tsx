@@ -56,6 +56,7 @@ function Article({ content }: { content: string }) {
               console.log(rest.className, rest.children)
               const match = rest.className?.match(/language-(\w+)/);
               const language = match ? match[1] : null;
+              // TODO: write tests for this
               if (!String(rest.children).trim().includes('\n')) {
                 return (
                   <CodeBlock
