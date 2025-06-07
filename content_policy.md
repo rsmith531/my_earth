@@ -1,8 +1,8 @@
 <h1 align='center'>Content Policy</h1>
 
-**Note**: This content policy may be updated or changed at any time without prior notice.
+<img alt="content policy last updated" src="https://img.shields.io/github/last-commit/rsmith531/my_earth?path=content_policy.md&label=Last%20updated" width="172px" height="20px" style="border-radius: '0px'">
 
-![Relative date](https://img.shields.io/date/1749009395?label=Last%20updated)
+**Note**: This content policy may be updated or changed at any time without prior notice.
 
 ## Use of Machine Learning
 
