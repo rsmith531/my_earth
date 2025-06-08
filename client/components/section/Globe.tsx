@@ -257,7 +257,6 @@ function Globe({
     return () => clearInterval(intervalId);
   }, [globeMaterial]);
 
-  console.log(markerCoordinates);
   return (
     <div
       data-testid={'globe-root-element'}
