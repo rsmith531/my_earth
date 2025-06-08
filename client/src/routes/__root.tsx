@@ -26,7 +26,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         <Outlet />
         <ReactQueryDevtools buttonPosition="bottom-left" />
         <TanStackRouterDevtools position="bottom-right" />
-        <div className="absolute top-4 right-4 z-20">
+        <div className="fixed top-4 right-4 z-20">
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="bg-transparent">
