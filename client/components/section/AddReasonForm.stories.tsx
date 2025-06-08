@@ -12,7 +12,12 @@ type Story = StoryObj<typeof AddReasonForm>;
 export const Default: Story = {
   args: {
     submitCallback: async (values) => {
-      console.log('[stories/AddReasonForm] got form values: ', values);
+      return new Promise<void>((resolve) => {
+        setTimeout(() => {
+          console.log('[stories/AddReasonForm] got form values: ', values);
+          resolve();
+        }, 2000);
+      });
     },
   },
 };
