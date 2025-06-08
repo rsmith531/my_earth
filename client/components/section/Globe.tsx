@@ -122,7 +122,7 @@ function Globe({
    *
    * the verticalOffset is tied to the globe's vertical position in the viewport
    */
-  const toggleVerticalOffset = (movement: 'linear' | 'ease' = 'ease') => {
+  const toggleVerticalOffset = (movement: 'linear' | 'ease' = 'ease', animationDuration = 1000) => {
     // if an animation is already running, cancel it
     if (animationFrameId.current) {
       cancelAnimationFrame(animationFrameId.current);
@@ -133,7 +133,6 @@ function Globe({
     const startTime = performance.now();
 
     const animateScroll = (currentTime: number) => {
-      const animationDuration = 1000; // milliseconds
       const elapsed = currentTime - startTime;
       const linearProgress = Math.min(elapsed / animationDuration, 1); // Ensure progress doesn't exceed 1
 
