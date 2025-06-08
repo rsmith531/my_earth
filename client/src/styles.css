@@ -7,17 +7,7 @@
 
 /* TODO: move the rest of the custom styles into the Base layer like the <p>
 element */
-/* font sizes */
-h1{ font-size: var(--text-5xl); line-height: 2; }
-h2{ font-size: var(--text-4xl); line-height: 2; }
-h3{ font-size: var(--text-2xl); line-height: 2; }
-h4{ font-size: var(--text-xl); line-height: 2;}
 
-/* list styling */
-ol{ list-style: decimal; padding-left: 1rem; }
-ul{ list-style: disclosure-closed; padding-left: 1rem; }
-li{ padding-bottom: 0.5rem; }
-hr{ padding-bottom: 0.5rem; }
 input[type="checkbox"] { margin-left: -1rem !important; } /* override showdown's margin */
 
 /* anchor tag colors */
@@ -158,11 +148,19 @@ code {
     @apply border-border outline-ring/50;
     @apply text-slate-200
   }
-  p{ @apply text-base pb-4;}
+  p{ @apply text-base pb-4}
+  /* font sizes */
+  h1{ @apply text-3xl sm:text-5xl pb-3 }
+  h2{ @apply text-2xl sm:text-4xl pb-3 }
+  h3{ @apply text-xl sm:text-2xl pb-3 }
+  h4{ @apply text-lg sm:text-xl pb-3 }
+  /* list styling */
+  ol{ @apply list-decimal pl-4 }
+  ul{ @apply list-disc pl-4 }
+  li{ @apply pb-2 }
+  hr{ @apply pb-2 }
+
   body {
     @apply bg-background text-foreground;
-  }
-  h1 {
-    font-size: var(--text-4xl);
   }
 }

@@ -28,7 +28,7 @@ function CodeBlock({
 
   return (
     <div
-      className="relative"
+      className="relative max-w-full"
       style={{ display: inline ? 'inline-flex' : undefined }}
     >
       <SyntaxHighlighter
