@@ -7,6 +7,7 @@ import '@tensorflow/tfjs-backend-wasm';
 if (typeof window !== 'undefined') {
   setBackend('webgl');
 } else {
+  // TODO: figure out wasm error in web worker
   setBackend('wasm');
 }
 
