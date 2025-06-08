@@ -215,9 +215,19 @@ function Home({
       }
     };
 
+  /**
+   * Infrastructure for finding and tracking the user's location
+   */
   const [userPosition, setUserPosition] =
     useState<Parameters<typeof Globe>[0]['markerCoordinates']>(undefined);
   const [watchId, setWatchId] = useState<number | null>(null);
+  const zoomedOnce = useRef<boolean>(false);
+  const stopWatching = () => {
+    if (watchId) navigator.geolocation.clearWatch(watchId);
+    setWatchId(null);
+    setUserPosition(undefined);
+    zoomedOnce.current = false;
+  };
 
   return (
     <>
@@ -314,11 +324,7 @@ function Home({
           `}
           onClick={() => {
             toggleScroll();
-            if (watchId) {
-              navigator.geolocation.clearWatch(watchId);
-              setWatchId(null);
-              setUserPosition(undefined);
-            }
+            stopWatching();
           }}
         >
           Return Home
@@ -376,9 +382,7 @@ function Home({
             disabled={!('geolocation' in navigator)}
             onClick={() => {
               if (watchId) {
-                navigator.geolocation.clearWatch(watchId);
-                setWatchId(null);
-                setUserPosition(undefined);
+                stopWatching();
               } else {
                 const newId = navigator.geolocation.watchPosition(
                   (position) => {
@@ -386,20 +390,22 @@ function Home({
                       lat: position.coords.latitude,
                       lng: position.coords.longitude,
                     });
-                    globeRef.current?.pointOfView(
-                      {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude,
-                        altitude: 0.25,
-                      },
-                      1500,
-                    );
-                    globeRef.current?.setAutoSpin(false);
+                    if (!zoomedOnce.current) {
+                      globeRef.current?.pointOfView(
+                        {
+                          lat: position.coords.latitude,
+                          lng: position.coords.longitude,
+                          altitude: 0.25,
+                        },
+                        1500,
+                      );
+                      globeRef.current?.setAutoSpin(false);
+                      zoomedOnce.current = true;
+                    }
                   },
                   (error) => {
                     console.error('Geolocation error:', error);
-                    setWatchId(null);
-                    setUserPosition(undefined);
+                    stopWatching();
                   },
                 );
                 setWatchId(newId);
