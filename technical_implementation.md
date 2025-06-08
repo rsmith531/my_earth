@@ -24,7 +24,7 @@ As it turns out, you can get a Postgres server spun up with minimal fuss by putt
 
 [Drizzle ORM](https://orm.drizzle.team/) is my favorite way to define a database schema, so that's how I wrote up the two whole tables that store the website's data: 
 
-<insert image of schema here>
+**insert image of schema here**
 
 It also provides a great way to generate and apply migrations as the schema evolves and gives very robust Typescript types to build queries and create interfaces with.
 
@@ -32,7 +32,7 @@ It also provides a great way to generate and apply migrations as the schema evol
 
 To make the database available to the internet at large, I built a simple API out of [Hono](https://hono.dev/):
 
-<insert api map here>
+**insert api map here**
 
 Zod once again proved its worth by stepping in to validate incoming requests. It made putting together the API handlers a breeze, since I knew the exact data types to expect to receive from requests.
 
@@ -87,7 +87,7 @@ After much deliberation, it turned out I just needed to perform three simple geo
 
 The world is a pretty big place, and the user's viewpoint can only see so much of it at any one time. I decided I would try optimizing the data fetching by only getting notes within the user's viewport. PostGIS has a method called `ST_DWithin` that gets all the rows that are within the radius of a given point. All I had to do was calculate the radius from two known values: the field of view of the viewpoint and the altitude. Trying to calculate this was bending my brain, until I shifted my mental model out of the 3D space and into the 2D.
 
-<insert picture here>
+**insert picture here**
 
 This let me break down the calculation into three stages:
 
