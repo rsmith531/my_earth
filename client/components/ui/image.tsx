@@ -48,15 +48,17 @@ function Image(
       {imageErrored ? (
         <div
           className={
-            'absolute overflow-clip bg-slate-400 flex flex-col gap-6 items-center justify-center'
+            'absolute overflow-clip bg-slate-400 flex flex-col gap-2 items-center justify-center p-2 sm:p-4'
           }
           style={{ width: resolvedWidth, height: resolvedHeight }}
         >
-          <BrokenImage
-            width={'20%'}
-            className="stroke-slate-200 fill-slate-200"
-          />
-          <p className="text-3xl">{props.alt ?? 'Could not load image'}</p>
+          {Number.parseInt(resolvedHeight) > 100 && (
+            <BrokenImage
+              width={'20%'}
+              className="stroke-slate-200 fill-slate-200"
+            />
+          )}
+          <h4 className="text-center">{props.alt ?? 'Could not load image'}</h4>
         </div>
       ) : null}
       <img
