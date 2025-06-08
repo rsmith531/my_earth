@@ -29,7 +29,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         <div className="fixed bottom-14 right-[50%] translate-x-1/2 sm:translate-x-0 sm:top-4 sm:right-4 z-20">
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="bg-transparent">
+              <Button className="border-2 border-slate-200 aspect-square w-9">
                 <Hamburger className="fill-slate-200 stroke-slate-200" />
               </Button>
             </DropdownMenuTrigger>
