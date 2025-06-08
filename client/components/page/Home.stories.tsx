@@ -18,7 +18,7 @@ export const Default: Story = {
       console.log('[stories/Home] submitCallback got values: ', values);
     },
     reportGlobeViewpoint: (values) =>
-      console.log('[stories/Home] reportViewpoint got values: ', values),
+      console.info('[stories/Home] reportViewpoint got values: ', values),
     notes: demoNotes
   },
   render: (args) => {

@@ -23,6 +23,7 @@ function Globe({
   reportViewpoint,
   freezeRender = false,
   ref,
+  markerCoordinates,
 }: {
   interactive: boolean;
   data?: { message: string; longitude: number; latitude: number }[];
@@ -44,6 +45,7 @@ function Globe({
       'pointOfView'
     >
   >;
+  markerCoordinates?: { lat: number; lng: number };
 }) {
   const globeEl = useRef<GlobeMethods | undefined>(undefined);
   const globeRoot = useRef<HTMLDivElement | null>(null);
@@ -122,7 +124,10 @@ function Globe({
    *
    * the verticalOffset is tied to the globe's vertical position in the viewport
    */
-  const toggleVerticalOffset = (movement: 'linear' | 'ease' = 'ease', animationDuration = 1000) => {
+  const toggleVerticalOffset = (
+    movement: 'linear' | 'ease' = 'ease',
+    animationDuration = 1000,
+  ) => {
     // if an animation is already running, cancel it
     if (animationFrameId.current) {
       cancelAnimationFrame(animationFrameId.current);
@@ -252,6 +257,7 @@ function Globe({
     return () => clearInterval(intervalId);
   }, [globeMaterial]);
 
+  console.log(markerCoordinates);
   return (
     <div
       data-testid={'globe-root-element'}
@@ -279,6 +285,16 @@ function Globe({
             globeMaterial?.uniforms.globeRotation.value.set(lng, lat),
           [globeMaterial],
         )}
+        // user coords
+        ringsData={markerCoordinates ? [markerCoordinates] : []}
+        ringColor={() => 'white'}
+        ringMaxRadius={1}
+        ringRepeatPeriod={2000}
+        ringPropagationSpeed={0.5}
+        labelsData={markerCoordinates ? [markerCoordinates] : []}
+        labelDotRadius={0.4}
+        labelColor={() => 'white'}
+        labelText={() => ''}
         // html elements
         htmlElementsData={data ?? undefined}
         htmlLat={

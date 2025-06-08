@@ -4,8 +4,19 @@ import { AddReasonForm } from '@components/section/AddReasonForm';
 import { Globe } from '@components/section/Globe';
 import { Button } from '@components/ui/button';
 import { Slider } from '@components/ui/slider';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@components/ui/tooltip';
 
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  LocateOff,
+  Locate,
+  LocateFixed,
+} from 'lucide-react';
 import {
   useState,
   type WheelEvent,
@@ -209,6 +220,20 @@ function Home({
       }
     };
 
+  /**
+   * Infrastructure for finding and tracking the user's location
+   */
+  const [userPosition, setUserPosition] =
+    useState<Parameters<typeof Globe>[0]['markerCoordinates']>(undefined);
+  const [watchId, setWatchId] = useState<number | null>(null);
+  const zoomedOnce = useRef<boolean>(false);
+  const stopWatching = () => {
+    if (watchId) navigator.geolocation.clearWatch(watchId);
+    setWatchId(null);
+    setUserPosition(undefined);
+    zoomedOnce.current = false;
+  };
+
   return (
     <>
       <div
@@ -285,6 +310,7 @@ function Home({
             data={notes}
             reportViewpoint={reportGlobeViewpoint}
             ref={globeRef}
+            markerCoordinates={userPosition}
           />
         </div>
         <Button
@@ -301,7 +327,10 @@ function Home({
             ${scrollPos === 0 && allowGlobeInteraction ? 'opacity-30' : 'opacity-0'}
             hover:opacity-100
           `}
-          onClick={() => toggleScroll()}
+          onClick={() => {
+            toggleScroll();
+            stopWatching();
+          }}
         >
           Return Home
         </Button>
@@ -335,19 +364,83 @@ function Home({
               borderRadius: '6px',
             }}
           />
-          <Button
-            onClick={() =>
-              setLabelSide(labelSide === 'left' ? 'right' : 'left')
-            }
-            style={{
-              marginLeft: labelSide === 'left' ? 'auto' : '-14px',
-              marginRight: labelSide === 'right' ? 'auto' : '-14px',
-              border: '2px solid var(--color-slate-200)',
-            }}
-            className={'aspect-square w-9'}
-          >
-            {labelSide === 'left' ? <ChevronLeft /> : <ChevronRight />}
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={() =>
+                  setLabelSide(labelSide === 'left' ? 'right' : 'left')
+                }
+                style={{
+                  marginLeft: labelSide === 'left' ? 'auto' : '-14px',
+                  marginRight: labelSide === 'right' ? 'auto' : '-14px',
+                  border: '2px solid var(--color-slate-200)',
+                }}
+                className={'aspect-square w-9'}
+              >
+                {labelSide === 'left' ? <ChevronLeft /> : <ChevronRight />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left">
+              <p className="pb-1">Move controls to opposite side</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                style={{
+                  marginLeft: labelSide === 'left' ? 'auto' : '-14px',
+                  marginRight: labelSide === 'right' ? 'auto' : '-14px',
+                  border: '2px solid var(--color-slate-200)',
+                }}
+                className={'aspect-square w-9'}
+                disabled={!('geolocation' in navigator)}
+                onClick={() => {
+                  if (watchId) {
+                    stopWatching();
+                  } else {
+                    const newId = navigator.geolocation.watchPosition(
+                      (position) => {
+                        setUserPosition({
+                          lat: position.coords.latitude,
+                          lng: position.coords.longitude,
+                        });
+                        if (!zoomedOnce.current) {
+                          globeRef.current?.pointOfView(
+                            {
+                              lat: position.coords.latitude,
+                              lng: position.coords.longitude,
+                              altitude: 0.25,
+                            },
+                            1500,
+                          );
+                          globeRef.current?.setAutoSpin(false);
+                          zoomedOnce.current = true;
+                        }
+                      },
+                      (error) => {
+                        console.error('Geolocation error:', error);
+                        stopWatching();
+                      },
+                    );
+                    setWatchId(newId);
+                  }
+                }}
+              >
+                {!watchId && !userPosition ? (
+                  <LocateOff />
+                ) : watchId && !userPosition ? (
+                  <Locate className="animate-pulse" />
+                ) : watchId && userPosition ? (
+                  <LocateFixed />
+                ) : (
+                  <LocateOff />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left">
+              <p className="pb-1">Zoom to your location</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
     </>
