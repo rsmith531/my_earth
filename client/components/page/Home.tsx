@@ -5,7 +5,13 @@ import { Globe } from '@components/section/Globe';
 import { Button } from '@components/ui/button';
 import { Slider } from '@components/ui/slider';
 
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  LocateOff,
+  Locate,
+  LocateFixed,
+} from 'lucide-react';
 import {
   useState,
   type WheelEvent,
@@ -209,6 +215,10 @@ function Home({
       }
     };
 
+  const [userPosition, setUserPosition] =
+    useState<Parameters<typeof Globe>[0]['markerCoordinates']>(undefined);
+  const [watchId, setWatchId] = useState<number | null>(null);
+
   return (
     <>
       <div
@@ -285,6 +295,7 @@ function Home({
             data={notes}
             reportViewpoint={reportGlobeViewpoint}
             ref={globeRef}
+            markerCoordinates={userPosition}
           />
         </div>
         <Button
@@ -301,7 +312,14 @@ function Home({
             ${scrollPos === 0 && allowGlobeInteraction ? 'opacity-30' : 'opacity-0'}
             hover:opacity-100
           `}
-          onClick={() => toggleScroll()}
+          onClick={() => {
+            toggleScroll();
+            if (watchId) {
+              navigator.geolocation.clearWatch(watchId);
+              setWatchId(null);
+              setUserPosition(undefined);
+            }
+          }}
         >
           Return Home
         </Button>
@@ -347,6 +365,56 @@ function Home({
             className={'aspect-square w-9'}
           >
             {labelSide === 'left' ? <ChevronLeft /> : <ChevronRight />}
+          </Button>
+          <Button
+            style={{
+              marginLeft: labelSide === 'left' ? 'auto' : '-14px',
+              marginRight: labelSide === 'right' ? 'auto' : '-14px',
+              border: '2px solid var(--color-slate-200)',
+            }}
+            className={'aspect-square w-9'}
+            disabled={!('geolocation' in navigator)}
+            onClick={() => {
+              if (watchId) {
+                navigator.geolocation.clearWatch(watchId);
+                setWatchId(null);
+                setUserPosition(undefined);
+              } else {
+                const newId = navigator.geolocation.watchPosition(
+                  (position) => {
+                    setUserPosition({
+                      lat: position.coords.latitude,
+                      lng: position.coords.longitude,
+                    });
+                    globeRef.current?.pointOfView(
+                      {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                        altitude: 0.25,
+                      },
+                      1500,
+                    );
+                    globeRef.current?.setAutoSpin(false);
+                  },
+                  (error) => {
+                    console.error('Geolocation error:', error);
+                    setWatchId(null);
+                    setUserPosition(undefined);
+                  },
+                );
+                setWatchId(newId);
+              }
+            }}
+          >
+            {!watchId && !userPosition ? (
+              <LocateOff />
+            ) : watchId && !userPosition ? (
+              <Locate className="animate-pulse" />
+            ) : watchId && userPosition ? (
+              <LocateFixed />
+            ) : (
+              <LocateOff />
+            )}
           </Button>
         </div>
       </div>
