@@ -11,14 +11,49 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as DocsLayoutRouteImport } from './routes/_docsLayout/route'
 import { Route as IndexImport } from './routes/index'
+import { Route as DocsLayoutTechnicalimplementationImport } from './routes/_docsLayout/technical_implementation'
+import { Route as DocsLayoutContributingImport } from './routes/_docsLayout/contributing'
+import { Route as DocsLayoutContentpolicyImport } from './routes/_docsLayout/content_policy'
+import { Route as DocsLayoutAboutImport } from './routes/_docsLayout/about'
 
 // Create/Update Routes
+
+const DocsLayoutRouteRoute = DocsLayoutRouteImport.update({
+  id: '/_docsLayout',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const DocsLayoutTechnicalimplementationRoute =
+  DocsLayoutTechnicalimplementationImport.update({
+    id: '/technical_implementation',
+    path: '/technical_implementation',
+    getParentRoute: () => DocsLayoutRouteRoute,
+  } as any)
+
+const DocsLayoutContributingRoute = DocsLayoutContributingImport.update({
+  id: '/contributing',
+  path: '/contributing',
+  getParentRoute: () => DocsLayoutRouteRoute,
+} as any)
+
+const DocsLayoutContentpolicyRoute = DocsLayoutContentpolicyImport.update({
+  id: '/content_policy',
+  path: '/content_policy',
+  getParentRoute: () => DocsLayoutRouteRoute,
+} as any)
+
+const DocsLayoutAboutRoute = DocsLayoutAboutImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => DocsLayoutRouteRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -32,39 +67,129 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/_docsLayout': {
+      id: '/_docsLayout'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof DocsLayoutRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/_docsLayout/about': {
+      id: '/_docsLayout/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof DocsLayoutAboutImport
+      parentRoute: typeof DocsLayoutRouteImport
+    }
+    '/_docsLayout/content_policy': {
+      id: '/_docsLayout/content_policy'
+      path: '/content_policy'
+      fullPath: '/content_policy'
+      preLoaderRoute: typeof DocsLayoutContentpolicyImport
+      parentRoute: typeof DocsLayoutRouteImport
+    }
+    '/_docsLayout/contributing': {
+      id: '/_docsLayout/contributing'
+      path: '/contributing'
+      fullPath: '/contributing'
+      preLoaderRoute: typeof DocsLayoutContributingImport
+      parentRoute: typeof DocsLayoutRouteImport
+    }
+    '/_docsLayout/technical_implementation': {
+      id: '/_docsLayout/technical_implementation'
+      path: '/technical_implementation'
+      fullPath: '/technical_implementation'
+      preLoaderRoute: typeof DocsLayoutTechnicalimplementationImport
+      parentRoute: typeof DocsLayoutRouteImport
+    }
   }
 }
 
 // Create and export the route tree
 
+interface DocsLayoutRouteRouteChildren {
+  DocsLayoutAboutRoute: typeof DocsLayoutAboutRoute
+  DocsLayoutContentpolicyRoute: typeof DocsLayoutContentpolicyRoute
+  DocsLayoutContributingRoute: typeof DocsLayoutContributingRoute
+  DocsLayoutTechnicalimplementationRoute: typeof DocsLayoutTechnicalimplementationRoute
+}
+
+const DocsLayoutRouteRouteChildren: DocsLayoutRouteRouteChildren = {
+  DocsLayoutAboutRoute: DocsLayoutAboutRoute,
+  DocsLayoutContentpolicyRoute: DocsLayoutContentpolicyRoute,
+  DocsLayoutContributingRoute: DocsLayoutContributingRoute,
+  DocsLayoutTechnicalimplementationRoute:
+    DocsLayoutTechnicalimplementationRoute,
+}
+
+const DocsLayoutRouteRouteWithChildren = DocsLayoutRouteRoute._addFileChildren(
+  DocsLayoutRouteRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '': typeof DocsLayoutRouteRouteWithChildren
+  '/about': typeof DocsLayoutAboutRoute
+  '/content_policy': typeof DocsLayoutContentpolicyRoute
+  '/contributing': typeof DocsLayoutContributingRoute
+  '/technical_implementation': typeof DocsLayoutTechnicalimplementationRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '': typeof DocsLayoutRouteRouteWithChildren
+  '/about': typeof DocsLayoutAboutRoute
+  '/content_policy': typeof DocsLayoutContentpolicyRoute
+  '/contributing': typeof DocsLayoutContributingRoute
+  '/technical_implementation': typeof DocsLayoutTechnicalimplementationRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/_docsLayout': typeof DocsLayoutRouteRouteWithChildren
+  '/_docsLayout/about': typeof DocsLayoutAboutRoute
+  '/_docsLayout/content_policy': typeof DocsLayoutContentpolicyRoute
+  '/_docsLayout/contributing': typeof DocsLayoutContributingRoute
+  '/_docsLayout/technical_implementation': typeof DocsLayoutTechnicalimplementationRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | ''
+    | '/about'
+    | '/content_policy'
+    | '/contributing'
+    | '/technical_implementation'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | ''
+    | '/about'
+    | '/content_policy'
+    | '/contributing'
+    | '/technical_implementation'
+  id:
+    | '__root__'
+    | '/'
+    | '/_docsLayout'
+    | '/_docsLayout/about'
+    | '/_docsLayout/content_policy'
+    | '/_docsLayout/contributing'
+    | '/_docsLayout/technical_implementation'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DocsLayoutRouteRoute: typeof DocsLayoutRouteRouteWithChildren
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DocsLayoutRouteRoute: DocsLayoutRouteRouteWithChildren,
 }
 
 export const routeTree = rootRoute
@@ -77,11 +202,37 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/"
+        "/",
+        "/_docsLayout"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/_docsLayout": {
+      "filePath": "_docsLayout/route.tsx",
+      "children": [
+        "/_docsLayout/about",
+        "/_docsLayout/content_policy",
+        "/_docsLayout/contributing",
+        "/_docsLayout/technical_implementation"
+      ]
+    },
+    "/_docsLayout/about": {
+      "filePath": "_docsLayout/about.tsx",
+      "parent": "/_docsLayout"
+    },
+    "/_docsLayout/content_policy": {
+      "filePath": "_docsLayout/content_policy.tsx",
+      "parent": "/_docsLayout"
+    },
+    "/_docsLayout/contributing": {
+      "filePath": "_docsLayout/contributing.tsx",
+      "parent": "/_docsLayout"
+    },
+    "/_docsLayout/technical_implementation": {
+      "filePath": "_docsLayout/technical_implementation.tsx",
+      "parent": "/_docsLayout"
     }
   }
 }

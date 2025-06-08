@@ -1,3 +1,5 @@
+// client\.storybook\preview.ts
+
 import type { Preview } from '@storybook/react';
 import '../src/styles.css';
 

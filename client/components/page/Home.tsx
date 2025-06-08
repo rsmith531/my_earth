@@ -245,11 +245,13 @@ function Home({
         </p>
       </div>
       <div id="home-globe" className="absolute flex inset-0 z-0">
-        <Globe
-          interactive={allowGlobeInteraction}
-          data={notes}
-          reportViewpoint={reportGlobeViewpoint}
-        />
+        <div className='h-full w-full'>
+          <Globe
+            interactive={allowGlobeInteraction}
+            data={notes}
+            reportViewpoint={reportGlobeViewpoint}
+          />
+        </div>
         <Button
           style={{
             position: 'absolute',

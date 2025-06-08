@@ -1,9 +1,13 @@
+// server\db\queries.test.ts
+
 import { notes } from './schema';
 import { db } from './client';
 import { expect, test, describe, beforeAll, afterAll } from 'bun:test';
 import { eq, sql } from 'drizzle-orm';
 import { getMessagesWithin } from './queries';
 
+
+// TODO: move this test data into some other file
 /**
  * Mount Rainier and McClure Rock are 5,637 meters apart.
  *

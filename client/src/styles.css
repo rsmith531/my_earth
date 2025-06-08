@@ -1,7 +1,36 @@
+/* client\src\styles.css */
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+
+/* TODO: move the rest of the custom styles into the Base layer like the <p>
+element */
+/* font sizes */
+h1{ font-size: var(--text-5xl); line-height: 2; }
+h2{ font-size: var(--text-4xl); line-height: 2; }
+h3{ font-size: var(--text-2xl); line-height: 2; }
+h4{ font-size: var(--text-xl); line-height: 2;}
+
+/* list styling */
+ol{ list-style: decimal; padding-left: 1rem; }
+ul{ list-style: disclosure-closed; padding-left: 1rem; }
+li{ padding-bottom: 0.5rem; }
+hr{ padding-bottom: 0.5rem; }
+input[type="checkbox"] { margin-left: -1rem !important; } /* override showdown's margin */
+
+/* anchor tag colors */
+a{ color: var(--color-blue-500); }
+a:hover{ color: var(--color-blue-300); }
+.dark-mode a{ color: var(--color-teal-500); }
+.dark-mode a:hover{ color: var(--color-teal-200); }
+
+/* strong tag colors */
+strong{ color: var(--color-amber-600); }
+strong:hover{ color: var(--color-amber-400); }
+.dark-mode strong{ color: var(--color-yellow-500); }
+.dark-mode strong:hover{ color: var(--color-yellow-200); }
 
 body {
   margin: 0;
@@ -57,7 +86,7 @@ code {
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --background: var(--color-slate-900);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
@@ -129,6 +158,7 @@ code {
     @apply border-border outline-ring/50;
     @apply text-slate-200
   }
+  p{ @apply text-base pb-4;}
   body {
     @apply bg-background text-foreground;
   }
