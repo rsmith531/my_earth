@@ -1,6 +1,13 @@
 // components\section\Globe.tsx
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+  type Ref,
+} from 'react';
 import UnderGlobe, { type GlobeMethods } from 'react-globe.gl';
 import { TextureLoader, ShaderMaterial, Vector2 } from 'three';
 // @ts-expect-error no type :(
@@ -15,6 +22,7 @@ function Globe({
   data,
   reportViewpoint,
   freezeRender = false,
+  ref,
 }: {
   interactive: boolean;
   data?: { message: string; longitude: number; latitude: number }[];
@@ -30,6 +38,12 @@ function Globe({
     longitude: number;
   }) => void;
   freezeRender?: boolean;
+  ref?: Ref<
+    { setAutoSpin: (toggle: boolean) => void } & Pick<
+      GlobeMethods,
+      'pointOfView'
+    >
+  >;
 }) {
   const globeEl = useRef<GlobeMethods | undefined>(undefined);
   const globeRoot = useRef<HTMLDivElement | null>(null);
@@ -56,9 +70,24 @@ function Globe({
     }
     globeEl.current.controls().autoRotate = autoSpin;
     globeEl.current.controls().autoRotateSpeed = 0.1;
-  }, [autoSpin]);
+  }, [autoSpin, freezeRender]);
 
   const isInitialMount = useRef(true);
+
+  /**
+   * Pass some methods from the globe *up* to a parent component
+   *
+   * see https://react.dev/reference/react/useImperativeHandle
+   */
+  useImperativeHandle(ref, () => ({
+    pointOfView: ((...args: Parameters<GlobeMethods['pointOfView']>) => {
+      if (!globeEl.current) throw new Error('globe ref is not ready yet');
+      return (globeEl.current.pointOfView as any)(...args);
+    }) as GlobeMethods['pointOfView'],
+    setAutoSpin: (toggle: boolean) => {
+      setAutoSpin(toggle);
+    },
+  }));
 
   /**
    * resize the canvas to the size of the viewport
@@ -93,7 +122,7 @@ function Globe({
    *
    * the verticalOffset is tied to the globe's vertical position in the viewport
    */
-  const toggleVerticalOffset = (movement: 'linear' | 'ease' = 'ease') => {
+  const toggleVerticalOffset = (movement: 'linear' | 'ease' = 'ease', animationDuration = 1000) => {
     // if an animation is already running, cancel it
     if (animationFrameId.current) {
       cancelAnimationFrame(animationFrameId.current);
@@ -104,7 +133,6 @@ function Globe({
     const startTime = performance.now();
 
     const animateScroll = (currentTime: number) => {
-      const animationDuration = 1000; // milliseconds
       const elapsed = currentTime - startTime;
       const linearProgress = Math.min(elapsed / animationDuration, 1); // Ensure progress doesn't exceed 1
 
