@@ -11,7 +11,7 @@ import {
   FormItem,
   FormMessage,
 } from '@components/ui/form';
-import { Send, Locate, CircleAlert } from 'lucide-react';
+import { Send, Locate, CircleAlert, Loader2 } from 'lucide-react';
 import { Textarea } from '@components/ui/textarea';
 import { Input } from '@components/ui/input';
 import { useEffect, useState } from 'react';
@@ -118,8 +118,8 @@ function AddReasonForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(
-          (values) => {
-            submitCallback(values)
+           async (values) => {
+             await submitCallback(values)
               .then(() => {
                 form.resetField('message');
                 startCooldown();
@@ -232,10 +232,10 @@ function AddReasonForm({
                   'aspect-square h-16 bg-slate-700 hover:bg-slate-700/90'
                 }
                 disabled={
-                  locationStatus !== 'success' || !!remainingCooldownSeconds
+                  locationStatus !== 'success' || !!remainingCooldownSeconds || form.formState.isSubmitting
                 }
               >
-                {remainingCooldownSeconds ? (
+                {form.formState.isSubmitting ? (<Loader2 className="size-8 stroke-slate-200 animate-spin"/>) : remainingCooldownSeconds ? (
                   remainingCooldownSeconds
                 ) : locationStatus === 'loading' ? (
                   <Locate className="size-8 stroke-slate-200 animate-pulse" />
