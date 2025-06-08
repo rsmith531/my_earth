@@ -8,7 +8,7 @@ const meta: Meta<typeof Globe> = {
   component: Globe,
   args: {
     reportViewpoint: (values) => {
-      console.log('[stories/Globe] reportViewpoint got values: ', values);
+      console.info('[stories/Globe] reportViewpoint got values: ', values);
     },
   },
   render: (args) => {
@@ -27,6 +27,13 @@ export const Default: Story = { args: { interactive: false } };
 export const Interactive: Story = { args: { interactive: true } };
 
 export const WithData: Story = { args: { interactive: true, data: demoNotes } };
+
+export const UserLocation: Story = {
+  args: {
+    interactive: true,
+    markerCoordinates: { lat: 41.13916, lng: -81.57464 },
+  },
+};
 
 export const FreezeRender: Story = {
   args: { interactive: false, freezeRender: true },
