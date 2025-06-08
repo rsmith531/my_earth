@@ -175,6 +175,20 @@ function Home({
   }
 `;
 
+  const globeRef: Parameters<typeof Globe>[0]['ref'] = useRef(null);
+  const zoomOnSubmit: Parameters<typeof AddReasonForm>[0]['submitCallback'] =
+    async (values) => {
+      await submitCallback(values);
+      if (globeRef.current && values.latitude && values.longitude) {
+        globeRef.current.pointOfView(
+          { lat: values.latitude, lng: values.longitude, altitude: 0.25 },
+          3000,
+        );
+        globeRef.current.setAutoSpin(false);
+        setScrollPos(0);
+      }
+    };
+
   return (
     <>
       <div
@@ -225,7 +239,7 @@ function Home({
           }}
         >
           <AddReasonForm
-            submitCallback={submitCallback}
+            submitCallback={zoomOnSubmit}
             focusHandler={() => resetScroll()}
           />
         </div>
@@ -245,11 +259,12 @@ function Home({
         </p>
       </div>
       <div id="home-globe" className="absolute flex inset-0 z-0">
-        <div className='h-full w-full'>
+        <div className="h-full w-full">
           <Globe
             interactive={allowGlobeInteraction}
             data={notes}
             reportViewpoint={reportGlobeViewpoint}
+            ref={globeRef}
           />
         </div>
         <Button
