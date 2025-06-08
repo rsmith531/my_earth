@@ -33,7 +33,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
                 <Hamburger className="fill-slate-200 stroke-slate-200" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 bg-slate-900" align="start">
+            <DropdownMenuContent className="w-56 bg-slate-900" align="end">
               <DropdownMenuGroup>
                 <Link to="/">
                   <DropdownMenuItem className="cursor-pointer">
