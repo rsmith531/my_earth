@@ -270,7 +270,7 @@ function Home({
       >
         <h1
           data-testid="home-title"
-          className="absolute"
+          className="absolute text-4xl"
           style={{ top: titlePosition, textAlign: 'center' }}
         >
           What is your favorite thing about Earth?

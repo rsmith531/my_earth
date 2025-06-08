@@ -126,3 +126,5 @@ The difference was that the first case required some requests in the stream to g
 The centerpiece of the UI is the big globe in a skybox (spacebox?). I couldn't have accomplished it without [react-globe.gl](https://vasturiano.github.io/react-globe.gl/). My goal was to let users see the notes that they write show up on the planet and see notes that others have written in the same place that they are now. I was hoping for a little bit of the wow factor of seeing our planet against the backdrop of space to leave the user awestruck and inspired.
 
 ## Closing Thoughts
+
+It was hard, but I'm glad I did it.

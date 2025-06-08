@@ -31,13 +31,11 @@ If you see your work on this web application and believe you haven't been proper
 
 If you would like to become a contributor on this project, please read [this guide](CONTRIBUTING.md).
 
-<a href="https://github.com/rsmith531/my_earth/graphs/contributors">
+<a href="https://github.com/rsmith531/my_earth/graphs/contributors" >
   <img src="https://contrib.rocks/image?repo=rsmith531/my_earth" alt="Github profile images of project contributors." width="100%" height="70px" />
 </a>
 
-Made with [contrib.rocks](https://contrib.rocks).
-
-<hr />
+<hr style="margin-top: 16px" />
 
 Want to know more about the technical implementation? See [here](technical_implementation.md).
 

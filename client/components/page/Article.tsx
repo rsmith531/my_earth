@@ -9,7 +9,7 @@ import type { ReactNode } from 'react';
  */
 function Article({ children }: { children: ReactNode }) {
   return (
-    <div className="relative py-12 min-h-dvh flex items-center">
+    <div className="relative py-4 pb-28 sm:py-12 px-4 sm:px-12 min-h-dvh h-dvh flex items-center sm:mt-0">
       <div className="z-0 inset-0 fixed pointer-events-none h-dvh">
         <Globe
           interactive={false}
@@ -28,7 +28,7 @@ function Article({ children }: { children: ReactNode }) {
           borderRadius: '15px',
           padding: '16px',
         }}
-        className=" relative m-auto bg-slate-900/95 max-w-4xl border-slate-200 border-2 z-10"
+        className="relative m-auto bg-slate-900/95 max-w-full sm:max-w-4xl border-slate-200 border-2 z-10 max-h-full p-4 overflow-scroll"
       >
         {children}
       </div>
