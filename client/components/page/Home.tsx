@@ -46,58 +46,78 @@ function Home({
   const animationFrameId = useRef<number | null>(null);
 
   /**
-   * gradually brings scrollPos back to its initial value using a linear or cubic
-   * ease-in-out animation.
+   * gradually brings scrollPos to the opposing position out of 0 or 100 using a
+   * linear or cubic ease-in-out animation.
    *
-   * returns early when scrollPos is already 100 to prevent unexpected behavior
+   * optionally, the animation duration can be controlled, and you can specify
+   * which direction it goes in.
+   *
+   * returns early when scrollPos is already at the target position to prevent
+   * unexpected behavior.
    */
-  const resetScroll = (movement: 'linear' | 'ease' = 'ease') => {
-    if (scrollPos === 100) return;
-
-    // if an animation is already running, cancel it
+  const toggleScroll = (
+    movement: 'linear' | 'ease' = 'ease',
+    animationDuration = 1000,
+    explicitTarget?: 0 | 100,
+  ) => {
+    // If an animation is already running, cancel it
     if (animationFrameId.current) {
       cancelAnimationFrame(animationFrameId.current);
+      animationFrameId.current = null;
     }
 
     const startPos = scrollPos;
-    const endPos = 100;
+    let nextTarget: number;
+
+    if (explicitTarget !== undefined) {
+      nextTarget = explicitTarget;
+    } else {
+      nextTarget =
+        Math.abs(scrollPos - 0) < Math.abs(scrollPos - 100) ? 100 : 0;
+    }
+
+    // No need to animate if we are already at the exact target
+    if (startPos === nextTarget) {
+      return;
+    }
+
     const startTime = performance.now();
 
-    const animateScroll = (currentTime: number) => {
-      const animationDuration = 1000; // milliseconds
-      const elapsed = currentTime - startTime;
-      const linearProgress = Math.min(elapsed / animationDuration, 1); // Ensure progress doesn't exceed 1
+    const easeInOutCubic = (t: number): number => {
+      return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+    };
 
-      const easeInOutCubic = (t: number): number => {
-        return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
-      };
+    const animateScroll = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const linearProgress = Math.min(elapsed / animationDuration, 1);
 
       let newPos: number;
 
       switch (movement) {
         case 'linear': {
-          newPos = startPos + (endPos - startPos) * linearProgress;
+          newPos = startPos + (nextTarget - startPos) * linearProgress;
           break;
         }
         case 'ease': {
           newPos =
-            startPos + (endPos - startPos) * easeInOutCubic(linearProgress);
+            startPos + (nextTarget - startPos) * easeInOutCubic(linearProgress);
           break;
         }
         default: {
-          throw new Error(
-            `[Home/resetScroll] unexpected value for movement: ${movement}`,
+          console.error(
+            `[Home/toggleScroll] unexpected value for movement: ${movement}`,
           );
+          newPos = startPos;
+          break;
         }
       }
 
       setScrollPos(newPos);
 
-      // the animation is still running
       if (linearProgress < 1) {
         animationFrameId.current = requestAnimationFrame(animateScroll);
-      } // the animation has finished
-      else {
+      } else {
+        setScrollPos(nextTarget);
         animationFrameId.current = null;
       }
     };
@@ -175,6 +195,20 @@ function Home({
   }
 `;
 
+  const globeRef: Parameters<typeof Globe>[0]['ref'] = useRef(null);
+  const zoomOnSubmit: Parameters<typeof AddReasonForm>[0]['submitCallback'] =
+    async (values) => {
+      await submitCallback(values);
+      if (globeRef.current && values.latitude && values.longitude) {
+        globeRef.current.pointOfView(
+          { lat: values.latitude, lng: values.longitude, altitude: 0.25 },
+          3000,
+        );
+        globeRef.current.setAutoSpin(false);
+        toggleScroll();
+      }
+    };
+
   return (
     <>
       <div
@@ -225,8 +259,8 @@ function Home({
           }}
         >
           <AddReasonForm
-            submitCallback={submitCallback}
-            focusHandler={() => resetScroll()}
+            submitCallback={zoomOnSubmit}
+            focusHandler={() => toggleScroll(undefined, undefined, 100)}
           />
         </div>
         <style>{scrollAnimationKeyframes}</style>
@@ -245,11 +279,12 @@ function Home({
         </p>
       </div>
       <div id="home-globe" className="absolute flex inset-0 z-0">
-        <div className='h-full w-full'>
+        <div className="h-full w-full">
           <Globe
             interactive={allowGlobeInteraction}
             data={notes}
             reportViewpoint={reportGlobeViewpoint}
+            ref={globeRef}
           />
         </div>
         <Button
@@ -266,7 +301,7 @@ function Home({
             ${scrollPos === 0 && allowGlobeInteraction ? 'opacity-30' : 'opacity-0'}
             hover:opacity-100
           `}
-          onClick={() => resetScroll()}
+          onClick={() => toggleScroll()}
         >
           Return Home
         </Button>
