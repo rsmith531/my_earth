@@ -17,7 +17,7 @@ ENV VITE_DATABASE_ENDPOINT=${VITE_DATABASE_ENDPOINT}
 WORKDIR /deployment
 
 # Copy package.json and bun.lock first to leverage Bun's cache
-COPY package.json bun.lock ./
+COPY package.json bun.lock *.md ./
 
 # directories containing the SPA, moderation ML model, and database endpoint
 COPY client/ client/
