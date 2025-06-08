@@ -1,5 +1,3 @@
-<!-- .github\workflows\pull_request_template.md -->
-
 ### What does this PR add?
 
 1.
