@@ -6,6 +6,7 @@ import rehypeRaw from 'rehype-raw';
 import { Image } from '@components/ui/image';
 import { CodeBlock } from '@components/ui/codeblock';
 import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { Link } from '@tanstack/react-router';
 
 // TODO: make sure URLs go to the hostname of the website
 
@@ -23,6 +24,20 @@ export function MarkdownRenderer({ content }: { content: string }) {
         img(props) {
           const { node, ...rest } = props;
           return <Image width={rest.width} height={rest.height} {...rest} />;
+        },
+        a({ node, ...rest }) {
+          if (rest.href?.endsWith('.md')) {
+            return (
+              <Link
+                // @ts-expect-error string magic that will come out with a route
+                // that exists on this website in the end
+                to={`/${rest.href.split('/').pop()?.replace('.md', '') || '/'}`}
+              >
+                {rest.children}
+              </Link>
+            );
+          }
+          return <a {...rest} />;
         },
         code(props) {
           const { node, ...rest } = props;
