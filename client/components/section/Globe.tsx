@@ -267,6 +267,7 @@ function Globe({
         // disable autorotate when the user clicks the globe
         onGlobeClick={() => setAutoSpin(false)}
         globeMaterial={globeMaterial}
+        showGlobe={!!globeMaterial}
         width={canvasWidth}
         height={canvasHeight}
         waitForGlobeReady={false}
