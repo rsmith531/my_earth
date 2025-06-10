@@ -36,6 +36,9 @@ FROM nginx:alpine AS runner
 # copy the built client application from the builder stage to the nginx server
 COPY --from=builder /deployment/client/dist /usr/share/nginx/html
 
+# copy the nginx config file for serving a SPA to the nginx server
+COPY client/nginx.conf /usr/local/nginx/conf/nginx.conf
+
 # expose the port Nginx listens on (default HTTP port).
 EXPOSE 80
 
