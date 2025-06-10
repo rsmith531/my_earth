@@ -268,6 +268,7 @@ function Globe({
         onGlobeClick={() => setAutoSpin(false)}
         globeMaterial={globeMaterial}
         showGlobe={!!globeMaterial}
+        showAtmosphere={!!globeMaterial}
         width={canvasWidth}
         height={canvasHeight}
         waitForGlobeReady={false}
