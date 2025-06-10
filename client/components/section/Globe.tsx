@@ -92,13 +92,25 @@ function Globe({
   }));
 
   /**
-   * resize the canvas to the size of the viewport
+   * Resize the canvas to the size of the viewport using ResizeObserver
    */
   useEffect(() => {
     if (!globeRoot.current) return;
-    const { offsetWidth, offsetHeight } = globeRoot.current;
-    setCanvasWidth(offsetWidth);
-    setCanvasHeight(offsetHeight);
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.target === globeRoot.current) {
+          setCanvasWidth(entry.contentRect.width);
+          setCanvasHeight(entry.contentRect.height);
+        }
+      }
+    });
+
+    resizeObserver.observe(globeRoot.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
   }, []);
 
   /**
@@ -118,6 +130,7 @@ function Globe({
   }, [interactive]);
 
   const animationFrameId = useRef<number | null>(null);
+
   /**
    * gradually brings verticalOffset to 0 or 500 using a linear or cubic
    * ease-in-out animation.
@@ -256,6 +269,10 @@ function Globe({
 
     return () => clearInterval(intervalId);
   }, [globeMaterial]);
+
+  // const renderCount = useRef<number>(0);
+  // console.log(`Globe render count: ${renderCount.current}`);
+  // renderCount.current += 1;
 
   return (
     <div
