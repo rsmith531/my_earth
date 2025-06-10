@@ -37,7 +37,7 @@ FROM nginx:alpine AS runner
 COPY --from=builder /deployment/client/dist /usr/share/nginx/html
 
 # copy the nginx config file for serving a SPA to the nginx server
-COPY client/nginx.conf /usr/local/nginx/conf/nginx.conf
+COPY client/nginx.conf /etc/nginx/conf.d/default.conf
 
 # expose the port Nginx listens on (default HTTP port).
 EXPOSE 80
