@@ -32,7 +32,7 @@ If you see your work on this web application and believe you haven't been proper
 If you would like to become a contributor on this project, please read [this guide](CONTRIBUTING.md).
 
 <a href="https://github.com/rsmith531/my_earth/graphs/contributors" >
-  <img src="https://contrib.rocks/image?repo=rsmith531/my_earth" alt="Github profile images of project contributors." width="100%" height="70px" />
+  <img src="https://contrib.rocks/image?repo=rsmith531/my_earth" alt="Github profile images of project contributors." height="70px" />
 </a>
 
 <hr style="margin-top: 16px" />
