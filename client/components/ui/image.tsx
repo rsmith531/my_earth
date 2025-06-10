@@ -4,25 +4,15 @@ import { useState, type ComponentProps } from 'react';
 import { Skeleton } from './skeleton';
 import { BrokenImage } from '@components/iconography/BrokenImage';
 
-// TODO: handle the case when an image errors but the size is too small to fit the icon and alt text
-
 /**
  * Gracefully handles image loading and broken image links by rendering a
  * skeleton during load and a styled div on error. It prevents layout shift that
  * occurs after an image loads by reserving the required space in the DOM in
  * advance. Takes the same props as an `<img>` element.
  */
-function Image(
-  props: {
-    width: ComponentProps<'img'>['width'];
-    height: ComponentProps<'img'>['height'];
-  } & ComponentProps<'img'>,
-) {
+function Image(props: ComponentProps<'img'>) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [imageErrored, setImageErrored] = useState<boolean>(false);
-
-  if (!props.width) throw new Error('A width property must be provided');
-  if (!props.height) throw new Error('A width height must be provided');
 
   const resolvedWidth =
     typeof props.width === 'number' ? `${props.width}px` : props.width;
@@ -34,25 +24,29 @@ function Image(
       className="relative overflow-clip"
       style={{
         borderRadius: '10px',
-        width: resolvedWidth,
-        height: resolvedHeight,
+        width: resolvedWidth ?? 'fit-content',
+        height: resolvedHeight ?? 'fit-content',
         ...props.style,
       }}
     >
       {isLoading ? (
         <Skeleton
           className={'absolute'}
-          style={{ width: resolvedWidth, height: resolvedHeight }}
+          style={{
+            width: resolvedWidth,
+            height: resolvedHeight,
+          }}
         />
       ) : null}
       {imageErrored ? (
         <div
           className={
-            'absolute overflow-clip bg-slate-400 flex flex-col gap-2 items-center justify-center p-2 sm:p-4'
+            'overflow-clip bg-slate-400 flex flex-col gap-2 items-center justify-center p-2 sm:p-4'
           }
           style={{ width: resolvedWidth, height: resolvedHeight }}
         >
-          {Number.parseInt(resolvedHeight) > 100 && (
+          {(resolvedHeight === undefined ||
+            Number.parseInt(String(resolvedHeight)) > 100) && (
             <BrokenImage
               width={'20%'}
               className="stroke-slate-200 fill-slate-200"
@@ -71,6 +65,9 @@ function Image(
         alt={props.alt}
         style={{
           display: imageErrored || isLoading ? 'none' : props.style?.display,
+          objectFit: 'contain',
+          height: '100%',
+          aspectRatio: 'auto',
         }}
       />
     </div>
