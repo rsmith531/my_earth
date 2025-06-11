@@ -1,25 +1,25 @@
 // server\index.test.ts
 
 import { testClient } from 'hono/testing';
-import {dbServer} from './index';
+import { dbServer } from './index';
 import { expect, test, describe, beforeAll, mock, afterAll } from 'bun:test';
 import { db } from './db/client';
 import { notes } from './db/schema';
-import { testData } from './db/queries.test';
+import { testData } from './utils';
 
 describe('The notes endpoint', () => {
   const realConsole = console;
-  
+
   beforeAll(async () => {
-      try {
-        console.log('[test/index] getting set up for tests');
-        await db.insert(notes).values(Object.values(testData));
-      } catch (e) {
-        console.error(
-          '[test/index] error inserting test data into database: ',
-          e,
-        );
-      }
+    try {
+      console.log('[test/index] getting set up for tests');
+      await db.insert(notes).values(Object.values(testData));
+    } catch (e) {
+      console.error(
+        '[test/index] error inserting test data into database: ',
+        e,
+      );
+    }
     global.console = {
       ...console,
       log: mock(),

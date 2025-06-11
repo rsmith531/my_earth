@@ -5,35 +5,7 @@ import { db } from './client';
 import { expect, test, describe, beforeAll, afterAll } from 'bun:test';
 import { eq, sql } from 'drizzle-orm';
 import { getMessagesWithin } from './queries';
-
-
-// TODO: move this test data into some other file
-/**
- * Mount Rainier and McClure Rock are 5,637 meters apart.
- *
- * The visitor center is 7,599 meters from Mount Rainier.
- *
- * Craters of the Moon is very far away from those.
- */
-export const testData = {
-  visitorCenter: {
-    message: 'TEST Henry M Jackson Visitor Center',
-    location: { y: 46.785959632325095, x: -121.73644955422306 },
-  },
-  mountRainier: {
-    message: 'TEST Mount Rainier',
-    location: { y: 46.852320896423535, x: -121.76032947806137 },
-  },
-  mcclureRock: {
-    message: 'TEST McClure Rock',
-    location: { y: 46.808469845235116, x: -121.7231556752573 },
-  },
-  // it's in Idaho
-  cratersOfTheMoon: {
-    message: 'TEST Craters of the Moon',
-    location: { y: 43.46200993178054, x: -113.56180734978187 },
-  },
-} satisfies Record<string, typeof notes.$inferInsert>;
+import { testData } from '../utils';
 
 describe('the getMessagesWithin function', () => {
   beforeAll(async () => {
