@@ -41,6 +41,27 @@
 
 3. To start the web application: <code className="language-shell">bun --filter 'client' dev</code>
 
+### Developing on android
+
+1. Download and unzip [android platform tools](https://developer.android.com/tools/releases/platform-tools) on your desktop.
+
+2. Open the unzipped directory in a terminal (type `run` in the address bar or right-click > "Open in terminal").
+
+3. Run `./adb devices` and accept the connection on your device.
+
+4. Open the ports for the web app: 
+
+```shell
+./adb reverse tcp:3000 tcp:3000
+./adb reverse tcp:4001 tcp:4001
+```
+
+5. Make sure USB debugging is enabled both in the [device settings](https://developer.android.com/studio/debug/dev-options) and the device's browser settings.
+
+6. On Firefox, go to [about:debugging](about:debugging), enable USB devices, and refresh the devices until you see yours in the list.
+
+[Reference](https://dev.to/tusharsadhwani/connecting-android-apps-to-localhost-simplified-57lm)
+
 ## Developing React components
 
 We use Storybook to merge development with documentation. Component files should have a `.stories.tsx` file that shares its file name. Please make sure there is a story to demonstrate all states and variants of a component when reasonable.
