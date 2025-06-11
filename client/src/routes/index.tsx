@@ -105,6 +105,7 @@ function HomePage() {
     }
   }, [fetchedNotesError]);
 
+  // TODO: I think it is submitting disallowed messages twice when the model has both an uncertain and a fail
   const submissionCallback: Parameters<typeof Home>[0]['submitCallback'] =
     useCallback(
       async (values) => {
@@ -116,7 +117,7 @@ function HomePage() {
               duration: Number.POSITIVE_INFINITY,
             },
           );
-          return;
+          throw new Error('[submissionCallback] moderation service worker did not report ready before user attempted to submit form.')
         }
         let moderationResults: Awaited<ReturnType<typeof classifyText>> = {
           matchedResults: [],
