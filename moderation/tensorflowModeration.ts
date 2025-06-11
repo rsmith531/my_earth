@@ -1,7 +1,7 @@
 // moderation\tensorflowModeration.ts
 
 import { ToxicityClassifier } from '@tensorflow-models/toxicity';
-import { setBackend, getBackend } from '@tensorflow/tfjs';
+import { getBackend } from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-backend-wasm';
 
 // try {
