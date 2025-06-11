@@ -1,15 +1,26 @@
 // moderation\tensorflowModeration.ts
 
 import { ToxicityClassifier } from '@tensorflow-models/toxicity';
-import { setBackend } from '@tensorflow/tfjs';
+import { setBackend, getBackend } from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-backend-wasm';
 
-if (typeof window !== 'undefined') {
-  setBackend('webgl');
-} else {
-  // TODO: figure out wasm error in web worker
-  setBackend('wasm');
-}
+// try {
+//   if (typeof window !== 'undefined') {
+//     console.info('initializing moderator with webgl backend.');
+//     await setBackend('webgl');
+//     console.info('finished moderator initialization with webgl backend.');
+//   } else {
+//     // TODO: figure out wasm error in web worker
+//     console.info('initializing moderator with wasm backend.');
+//     await setBackend('wasm');
+//     console.info('finished moderator initialization with wasm backend.');
+//   }
+// } catch (error) {
+//   console.error(
+//     `[tensorflowModeration] failed to initialize a faster back end. Falling back to default: ${getBackend()}`,
+//     error,
+//   );
+// }
 
 const DEFAULT_THRESHOLD = 0.8;
 let model: ToxicityClassifier | null;
@@ -49,6 +60,7 @@ export async function initializeModerator(
       })
       .finally(() => {
         modelLoading = null;
+        console.info(`moderator loaded using ${getBackend()} backend.`);
       });
   });
 
