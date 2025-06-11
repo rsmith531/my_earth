@@ -54,8 +54,13 @@ describe('the getMessagesWithin function', () => {
       5000,
     );
 
-    expect(results).toContainEqual(testData.mountRainier);
-    expect(results).toContainEqual(testData.mcclureRock);
-    expect(results).not.toContainEqual(testData.cratersOfTheMoon);
+    const omitPublishedAt = (obj: typeof notes.$inferInsert) => {
+      const { publishedAt, ...rest } = obj;
+      return rest;
+    };
+
+    expect(results).toContainEqual(omitPublishedAt(testData.mountRainier));
+    expect(results).toContainEqual(omitPublishedAt(testData.mcclureRock));
+    expect(results).not.toContainEqual(omitPublishedAt(testData.cratersOfTheMoon));
   });
 });
