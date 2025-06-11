@@ -303,7 +303,7 @@ function Home({
           scroll down
         </p>
       </div>
-      <div id="home-globe" className="absolute flex inset-0 z-0">
+      <div id="home-globe" className="absolute flex h-dvh inset-0 z-0">
         <div className="h-full w-full">
           <Globe
             interactive={allowGlobeInteraction}

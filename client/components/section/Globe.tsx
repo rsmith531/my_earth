@@ -277,7 +277,7 @@ function Globe({
   return (
     <div
       data-testid={'globe-root-element'}
-      className="cursor-move h-full"
+      className="cursor-move h-dvh"
       ref={globeRoot}
     >
       <UnderGlobe
