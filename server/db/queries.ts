@@ -2,7 +2,7 @@
 
 import { db } from './client';
 import { notes } from './schema';
-import { sql } from 'drizzle-orm';
+import { sql, and, isNotNull } from 'drizzle-orm';
 
 /**
  * @param distance the distance **in meters** from the point.
@@ -19,7 +19,10 @@ export async function getMessagesWithin(
     .select({ message: notes.message, location: notes.location })
     .from(notes)
     .where(
-      sql`ST_DWithin(${notes.location}::geography, ST_Point( ${from.x}, ${from.y}, 4326)::geography, ${distance})`,
+      and(
+        isNotNull(notes.publishedAt),
+        sql`ST_DWithin(${notes.location}::geography, ST_Point( ${from.x}, ${from.y}, 4326)::geography, ${distance})`,
+      ),
     )
     .limit(amount);
 }
