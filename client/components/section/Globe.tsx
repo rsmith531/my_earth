@@ -331,12 +331,16 @@ function Globe({
               }
             : undefined
         }
+        htmlElementVisibilityModifier={(el, isVisible) => {
+          el.style.opacity = isVisible ? '0.8' : '0';
+        }}
         htmlElement={
           data
             ? (d): HTMLElement => {
                 const element = document.createElement('div');
                 // @ts-expect-error don't worry, this library just has bad typing
                 element.textContent = d.message;
+                // div styling
                 element.style.textAlign = 'center';
                 element.style.color = 'var(--color-slate-700)';
                 element.style.maxWidth = '300px';
@@ -345,7 +349,9 @@ function Globe({
                 element.style.padding = '0.25rem';
                 element.style.borderColor = 'var(--color-slate-700)';
                 element.style.borderWidth = '3px';
-                element.style.opacity = '0.8';
+
+                // fades out of viewport
+                element.style.transition = 'opacity 250ms';
                 return element;
               }
             : undefined
