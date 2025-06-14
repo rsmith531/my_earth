@@ -352,6 +352,58 @@ function Globe({
 
                 // fades out of viewport
                 element.style.transition = 'opacity 250ms';
+
+                // click handler stuff
+                element.style.cursor = 'pointer';
+                element.style['pointer-events'] = 'auto';
+                element.onmouseenter = (event) => {
+                  if (event.target instanceof HTMLElement)
+                    event.target.style.opacity = '1';
+                };
+                element.onmouseleave = (event) => {
+                  if (event.target instanceof HTMLElement)
+                    event.target.style.opacity = '0.8';
+                };
+                element.onclick = (val) => {
+                  console.log('clicked on a note: ', val, d);
+                };
+
+                // button to nav backwards
+                const navBack = document.createElement('button');
+                navBack.style.marginRight = '0.5rem';
+                navBack.style.marginTop = '0.5rem';
+                navBack.style.padding = '0.25rem 0.25rem';
+                navBack.style.backgroundColor = 'var(--color-slate-700)';
+                navBack.style.color = 'var(--color-slate-200)';
+                navBack.style.border = 'none';
+                navBack.style.borderRadius = '500px';
+                navBack.style.cursor = 'pointer';
+                navBack.onclick = (event) => {
+                  event.stopPropagation();
+                  console.log('Button 1 clicked for message:', d.message);
+                };
+                navBack.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>`;
+
+                // button to nav forwards
+                const navForward = document.createElement('button');
+                navForward.style.marginLeft = '0.5rem';
+                navBack.style.marginTop = '0.5rem';
+                navForward.style.padding = '0.25rem 0.25rem';
+                navForward.style.backgroundColor = 'var(--color-slate-700)';
+                navForward.style.color = 'var(--color-slate-200)';
+                navForward.style.border = 'none';
+                navForward.style.borderRadius = '500px';
+                navForward.style.cursor = 'pointer';
+                navForward.onclick = (event) => {
+                  event.stopPropagation(); // Prevent the parent div's click handler from firing
+                  console.log('Button 2 clicked for message:', d.message);
+                };
+                navForward.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
+
+                // Append the buttons to the element
+                element.appendChild(document.createElement('br'));
+                element.appendChild(navBack);
+                element.appendChild(navForward);
                 return element;
               }
             : undefined
