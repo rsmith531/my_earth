@@ -8,152 +8,71 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as DocsLayoutRouteRouteImport } from './routes/_docsLayout/route'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as DocsLayoutTechnical_implementationRouteImport } from './routes/_docsLayout/technical_implementation'
+import { Route as DocsLayoutContributingRouteImport } from './routes/_docsLayout/contributing'
+import { Route as DocsLayoutContent_policyRouteImport } from './routes/_docsLayout/content_policy'
+import { Route as DocsLayoutAboutRouteImport } from './routes/_docsLayout/about'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as DocsLayoutRouteImport } from './routes/_docsLayout/route'
-import { Route as IndexImport } from './routes/index'
-import { Route as DocsLayoutTechnicalimplementationImport } from './routes/_docsLayout/technical_implementation'
-import { Route as DocsLayoutContributingImport } from './routes/_docsLayout/contributing'
-import { Route as DocsLayoutContentpolicyImport } from './routes/_docsLayout/content_policy'
-import { Route as DocsLayoutAboutImport } from './routes/_docsLayout/about'
-
-// Create/Update Routes
-
-const DocsLayoutRouteRoute = DocsLayoutRouteImport.update({
+const DocsLayoutRouteRoute = DocsLayoutRouteRouteImport.update({
   id: '/_docsLayout',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const IndexRoute = IndexImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const DocsLayoutTechnicalimplementationRoute =
-  DocsLayoutTechnicalimplementationImport.update({
+const DocsLayoutTechnical_implementationRoute =
+  DocsLayoutTechnical_implementationRouteImport.update({
     id: '/technical_implementation',
     path: '/technical_implementation',
     getParentRoute: () => DocsLayoutRouteRoute,
   } as any)
-
-const DocsLayoutContributingRoute = DocsLayoutContributingImport.update({
+const DocsLayoutContributingRoute = DocsLayoutContributingRouteImport.update({
   id: '/contributing',
   path: '/contributing',
   getParentRoute: () => DocsLayoutRouteRoute,
 } as any)
-
-const DocsLayoutContentpolicyRoute = DocsLayoutContentpolicyImport.update({
-  id: '/content_policy',
-  path: '/content_policy',
-  getParentRoute: () => DocsLayoutRouteRoute,
-} as any)
-
-const DocsLayoutAboutRoute = DocsLayoutAboutImport.update({
+const DocsLayoutContent_policyRoute =
+  DocsLayoutContent_policyRouteImport.update({
+    id: '/content_policy',
+    path: '/content_policy',
+    getParentRoute: () => DocsLayoutRouteRoute,
+  } as any)
+const DocsLayoutAboutRoute = DocsLayoutAboutRouteImport.update({
   id: '/about',
   path: '/about',
   getParentRoute: () => DocsLayoutRouteRoute,
 } as any)
 
-// Populate the FileRoutesByPath interface
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/_docsLayout': {
-      id: '/_docsLayout'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof DocsLayoutRouteImport
-      parentRoute: typeof rootRoute
-    }
-    '/_docsLayout/about': {
-      id: '/_docsLayout/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof DocsLayoutAboutImport
-      parentRoute: typeof DocsLayoutRouteImport
-    }
-    '/_docsLayout/content_policy': {
-      id: '/_docsLayout/content_policy'
-      path: '/content_policy'
-      fullPath: '/content_policy'
-      preLoaderRoute: typeof DocsLayoutContentpolicyImport
-      parentRoute: typeof DocsLayoutRouteImport
-    }
-    '/_docsLayout/contributing': {
-      id: '/_docsLayout/contributing'
-      path: '/contributing'
-      fullPath: '/contributing'
-      preLoaderRoute: typeof DocsLayoutContributingImport
-      parentRoute: typeof DocsLayoutRouteImport
-    }
-    '/_docsLayout/technical_implementation': {
-      id: '/_docsLayout/technical_implementation'
-      path: '/technical_implementation'
-      fullPath: '/technical_implementation'
-      preLoaderRoute: typeof DocsLayoutTechnicalimplementationImport
-      parentRoute: typeof DocsLayoutRouteImport
-    }
-  }
-}
-
-// Create and export the route tree
-
-interface DocsLayoutRouteRouteChildren {
-  DocsLayoutAboutRoute: typeof DocsLayoutAboutRoute
-  DocsLayoutContentpolicyRoute: typeof DocsLayoutContentpolicyRoute
-  DocsLayoutContributingRoute: typeof DocsLayoutContributingRoute
-  DocsLayoutTechnicalimplementationRoute: typeof DocsLayoutTechnicalimplementationRoute
-}
-
-const DocsLayoutRouteRouteChildren: DocsLayoutRouteRouteChildren = {
-  DocsLayoutAboutRoute: DocsLayoutAboutRoute,
-  DocsLayoutContentpolicyRoute: DocsLayoutContentpolicyRoute,
-  DocsLayoutContributingRoute: DocsLayoutContributingRoute,
-  DocsLayoutTechnicalimplementationRoute:
-    DocsLayoutTechnicalimplementationRoute,
-}
-
-const DocsLayoutRouteRouteWithChildren = DocsLayoutRouteRoute._addFileChildren(
-  DocsLayoutRouteRouteChildren,
-)
-
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '': typeof DocsLayoutRouteRouteWithChildren
   '/about': typeof DocsLayoutAboutRoute
-  '/content_policy': typeof DocsLayoutContentpolicyRoute
+  '/content_policy': typeof DocsLayoutContent_policyRoute
   '/contributing': typeof DocsLayoutContributingRoute
-  '/technical_implementation': typeof DocsLayoutTechnicalimplementationRoute
+  '/technical_implementation': typeof DocsLayoutTechnical_implementationRoute
 }
-
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '': typeof DocsLayoutRouteRouteWithChildren
   '/about': typeof DocsLayoutAboutRoute
-  '/content_policy': typeof DocsLayoutContentpolicyRoute
+  '/content_policy': typeof DocsLayoutContent_policyRoute
   '/contributing': typeof DocsLayoutContributingRoute
-  '/technical_implementation': typeof DocsLayoutTechnicalimplementationRoute
+  '/technical_implementation': typeof DocsLayoutTechnical_implementationRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute
+  __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_docsLayout': typeof DocsLayoutRouteRouteWithChildren
   '/_docsLayout/about': typeof DocsLayoutAboutRoute
-  '/_docsLayout/content_policy': typeof DocsLayoutContentpolicyRoute
+  '/_docsLayout/content_policy': typeof DocsLayoutContent_policyRoute
   '/_docsLayout/contributing': typeof DocsLayoutContributingRoute
-  '/_docsLayout/technical_implementation': typeof DocsLayoutTechnicalimplementationRoute
+  '/_docsLayout/technical_implementation': typeof DocsLayoutTechnical_implementationRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
@@ -181,59 +100,81 @@ export interface FileRouteTypes {
     | '/_docsLayout/technical_implementation'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DocsLayoutRouteRoute: typeof DocsLayoutRouteRouteWithChildren
 }
 
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_docsLayout': {
+      id: '/_docsLayout'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof DocsLayoutRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_docsLayout/about': {
+      id: '/_docsLayout/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof DocsLayoutAboutRouteImport
+      parentRoute: typeof DocsLayoutRouteRoute
+    }
+    '/_docsLayout/content_policy': {
+      id: '/_docsLayout/content_policy'
+      path: '/content_policy'
+      fullPath: '/content_policy'
+      preLoaderRoute: typeof DocsLayoutContent_policyRouteImport
+      parentRoute: typeof DocsLayoutRouteRoute
+    }
+    '/_docsLayout/contributing': {
+      id: '/_docsLayout/contributing'
+      path: '/contributing'
+      fullPath: '/contributing'
+      preLoaderRoute: typeof DocsLayoutContributingRouteImport
+      parentRoute: typeof DocsLayoutRouteRoute
+    }
+    '/_docsLayout/technical_implementation': {
+      id: '/_docsLayout/technical_implementation'
+      path: '/technical_implementation'
+      fullPath: '/technical_implementation'
+      preLoaderRoute: typeof DocsLayoutTechnical_implementationRouteImport
+      parentRoute: typeof DocsLayoutRouteRoute
+    }
+  }
+}
+
+interface DocsLayoutRouteRouteChildren {
+  DocsLayoutAboutRoute: typeof DocsLayoutAboutRoute
+  DocsLayoutContent_policyRoute: typeof DocsLayoutContent_policyRoute
+  DocsLayoutContributingRoute: typeof DocsLayoutContributingRoute
+  DocsLayoutTechnical_implementationRoute: typeof DocsLayoutTechnical_implementationRoute
+}
+
+const DocsLayoutRouteRouteChildren: DocsLayoutRouteRouteChildren = {
+  DocsLayoutAboutRoute: DocsLayoutAboutRoute,
+  DocsLayoutContent_policyRoute: DocsLayoutContent_policyRoute,
+  DocsLayoutContributingRoute: DocsLayoutContributingRoute,
+  DocsLayoutTechnical_implementationRoute:
+    DocsLayoutTechnical_implementationRoute,
+}
+
+const DocsLayoutRouteRouteWithChildren = DocsLayoutRouteRoute._addFileChildren(
+  DocsLayoutRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DocsLayoutRouteRoute: DocsLayoutRouteRouteWithChildren,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/_docsLayout"
-      ]
-    },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/_docsLayout": {
-      "filePath": "_docsLayout/route.tsx",
-      "children": [
-        "/_docsLayout/about",
-        "/_docsLayout/content_policy",
-        "/_docsLayout/contributing",
-        "/_docsLayout/technical_implementation"
-      ]
-    },
-    "/_docsLayout/about": {
-      "filePath": "_docsLayout/about.tsx",
-      "parent": "/_docsLayout"
-    },
-    "/_docsLayout/content_policy": {
-      "filePath": "_docsLayout/content_policy.tsx",
-      "parent": "/_docsLayout"
-    },
-    "/_docsLayout/contributing": {
-      "filePath": "_docsLayout/contributing.tsx",
-      "parent": "/_docsLayout"
-    },
-    "/_docsLayout/technical_implementation": {
-      "filePath": "_docsLayout/technical_implementation.tsx",
-      "parent": "/_docsLayout"
-    }
-  }
-}
-ROUTE_MANIFEST_END */

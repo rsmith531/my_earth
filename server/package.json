@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "bun run db-start && bun --watch index.ts",
-    "dev": "concurrently \"bun run start\" \"bun run db-studio\"",
+    "dev": "concurrently --names api,studio --c auto \"bun run start\" \"bun run db-studio\"",
     "setup-dev": "bun run db-create && bun run db-seed",
     "db-start": "docker compose up -d database --wait",
     "db-create": "bun run db-start && bunx drizzle-kit generate --config \"db/drizzle.config.ts\" && bunx drizzle-kit push --config \"db/drizzle.config.ts\"",
