@@ -57,6 +57,8 @@ function Globe({
   );
   const [globeMaterial, setGlobeMaterial] = useState<ShaderMaterial>();
 
+  // adjust the incoming data so that nearby messages get grouped into a single
+  // datapoint for the globe
   const displayData = data?.map((val) => {
     return {
       message: [val.message],
@@ -361,7 +363,7 @@ function Globe({
                 element.style.borderWidth = '3px';
                 element.style.transition = 'opacity 250ms'; // fades out of viewport
                 // make parent brighter when user hovers over it
-                element.style['pointer-events'] = 'auto';
+                element.style.pointerEvents = 'auto';
                 element.onmouseenter = (event) => {
                   if (event.target instanceof HTMLElement)
                     event.target.style.opacity = '1';
@@ -388,61 +390,63 @@ function Globe({
                     messageDisplay.textContent = 'No message available.';
                   }
                 };
+                if (d.message.length > 1) {
+                  // button to nav backwards
+                  const navBack = document.createElement('button');
+                  navBack.style.marginRight = '0.5rem';
+                  navBack.style.padding = '0.25rem 0.25rem';
+                  navBack.style.backgroundColor = 'var(--color-slate-700)';
+                  navBack.style.color = 'var(--color-slate-200)';
+                  navBack.style.border = 'none';
+                  navBack.style.borderRadius = '500px';
+                  navBack.style.pointerEvents = 'auto';
+                  navBack.style.cursor = 'pointer';
+                  navBack.onclick = (event) => {
+                    event.stopPropagation();
+                    if (d.message && d.message.length > 0) {
+                      currentIndex =
+                        (currentIndex - 1 + d.message.length) %
+                        d.message.length; // Loop around
+                      updateMessageDisplay();
+                      console.log(
+                        'Navigated back to index:',
+                        currentIndex,
+                        'message:',
+                        d.message[currentIndex],
+                      );
+                    }
+                  };
+                  navBack.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>`;
 
-                // button to nav backwards
-                const navBack = document.createElement('button');
-                navBack.style.marginRight = '0.5rem';
-                navBack.style.padding = '0.25rem 0.25rem';
-                navBack.style.backgroundColor = 'var(--color-slate-700)';
-                navBack.style.color = 'var(--color-slate-200)';
-                navBack.style.border = 'none';
-                navBack.style.borderRadius = '500px';
-                navBack.style['pointer-events'] = 'auto';
-                navBack.style.cursor = 'pointer';
-                navBack.onclick = (event) => {
-                  event.stopPropagation();
-                  if (d.message && d.message.length > 0) {
-                    currentIndex =
-                      (currentIndex - 1 + d.message.length) % d.message.length; // Loop around
-                    updateMessageDisplay();
-                    console.log(
-                      'Navigated back to index:',
-                      currentIndex,
-                      'message:',
-                      d.message[currentIndex],
-                    );
-                  }
-                };
-                navBack.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>`;
+                  // button to nav forwards
+                  const navForward = document.createElement('button');
+                  navForward.style.marginLeft = '0.5rem';
+                  navForward.style.padding = '0.25rem 0.25rem';
+                  navForward.style.backgroundColor = 'var(--color-slate-700)';
+                  navForward.style.color = 'var(--color-slate-200)';
+                  navForward.style.border = 'none';
+                  navForward.style.borderRadius = '500px';
+                  navForward.style.pointerEvents = 'auto';
+                  navForward.style.cursor = 'pointer';
+                  navForward.onclick = (event) => {
+                    event.stopPropagation();
+                    if (d.message && d.message.length > 0) {
+                      currentIndex = (currentIndex + 1) % d.message.length; // Loop around
+                      updateMessageDisplay();
+                      console.log(
+                        'Navigated forward to index:',
+                        currentIndex,
+                        'message:',
+                        d.message[currentIndex],
+                      );
+                    }
+                  };
+                  navForward.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
 
-                // button to nav forwards
-                const navForward = document.createElement('button');
-                navForward.style.marginLeft = '0.5rem';
-                navForward.style.padding = '0.25rem 0.25rem';
-                navForward.style.backgroundColor = 'var(--color-slate-700)';
-                navForward.style.color = 'var(--color-slate-200)';
-                navForward.style.border = 'none';
-                navForward.style.borderRadius = '500px';
-                navForward.style['pointer-events'] = 'auto';
-                navForward.style.cursor = 'pointer';
-                navForward.onclick = (event) => {
-                  event.stopPropagation();
-                  if (d.message && d.message.length > 0) {
-                    currentIndex = (currentIndex + 1) % d.message.length; // Loop around
-                    updateMessageDisplay();
-                    console.log(
-                      'Navigated forward to index:',
-                      currentIndex,
-                      'message:',
-                      d.message[currentIndex],
-                    );
-                  }
-                };
-                navForward.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
-
-                // Append the buttons to the element
-                element.appendChild(navBack);
-                element.appendChild(navForward);
+                  // Append the buttons to the element
+                  element.appendChild(navBack);
+                  element.appendChild(navForward);
+                }
 
                 // Initial display of the message
                 updateMessageDisplay();
