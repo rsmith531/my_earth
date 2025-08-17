@@ -33,7 +33,7 @@ COPY --from=builder /deployment/server/dist ./dist
 
 # Manually copy the required TensorFlow.js WASM assets.
 # This creates the necessary directory structure for the runtime to find them.
-COPY --from=builder /deployment/node_modules/@tensorflow/tfjs-backend-wasm/wasm-out ./node_modules/@tensorflow/tfjs-backend-wasm/wasm-out
+COPY --from=builder /deployment/node_modules/@tensorflow/tfjs-backend-wasm/wasm-out /deployment/node_modules/@tensorflow/tfjs-backend-wasm/wasm-out
 
 # copy the python script, too
 COPY --from=builder /deployment/server/getVisibleSurfaceRadius.py ./
