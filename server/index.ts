@@ -21,7 +21,7 @@ import { classifyToxicity, initializeModerator } from 'moderation';
 console.log('[server] API endpoint is activating');
 
 // initialize the tensorflow moderator
-initializeModerator();
+await initializeModerator();
 
 const app = new Hono()
   .use('*', cors())
