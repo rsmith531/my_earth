@@ -1,7 +1,7 @@
 // moderation\tensorflowModeration.ts
 
 import { ToxicityClassifier } from '@tensorflow-models/toxicity';
-import { getBackend } from '@tensorflow/tfjs';
+import { getBackend, ready } from '@tensorflow/tfjs';
 import '@tensorflow/tfjs-backend-wasm';
 
 // try {
@@ -49,6 +49,7 @@ export async function initializeModerator(
     const newModel = new ToxicityClassifier(threshold);
     newModel
       .load()
+      .then(() => ready())
       .then(() => {
         model = newModel;
         resolve();
