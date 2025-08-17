@@ -13,6 +13,7 @@ import { TextureLoader, ShaderMaterial, Vector2 } from 'three';
 // @ts-expect-error no type :(
 import * as solar from 'solar-calculator';
 import { convertGRUsToMeters } from '@lib/utils';
+import { useClusteredData } from '@lib/useClusteredData';
 
 // https://thenewstack.io/recreating-shopifys-bfcm-globe-using-react-globe-gl/
 // day/night cycle code: https://github.com/vasturiano/react-globe.gl/blob/master/example/day-night-cycle/index.html
@@ -57,15 +58,31 @@ function Globe({
   );
   const [globeMaterial, setGlobeMaterial] = useState<ShaderMaterial>();
 
-  // adjust the incoming data so that nearby messages get grouped into a single
-  // datapoint for the globe
-  const displayData = data?.map((val) => {
-    return {
-      message: [val.message],
-      longitude: val.longitude,
-      latitude: val.latitude,
-    };
-  });
+  const [currentGlobeAltitude, setCurrentGlobeAltitude] = useState<number>(
+    convertGRUsToMeters(2),
+  );
+
+  // map the camera's altitude to a zoom level for the supercluster algorithm
+  let superclusterZoomLevel: number;
+  if (currentGlobeAltitude <= convertGRUsToMeters(0.2)) {
+    superclusterZoomLevel = 10;
+  } else if (currentGlobeAltitude <= convertGRUsToMeters(0.4)) {
+    superclusterZoomLevel = 9;
+  } else if (currentGlobeAltitude <= convertGRUsToMeters(0.5)) {
+    superclusterZoomLevel = 8;
+  } else if (currentGlobeAltitude <= convertGRUsToMeters(0.75)) {
+    superclusterZoomLevel = 7;
+  } else if (currentGlobeAltitude <= convertGRUsToMeters(2)) {
+    superclusterZoomLevel = 6;
+  } else if (currentGlobeAltitude <= convertGRUsToMeters(4.5)) {
+    superclusterZoomLevel = 5;
+  } else if (currentGlobeAltitude <= convertGRUsToMeters(6)) {
+    superclusterZoomLevel = 4;
+  } else {
+    superclusterZoomLevel = 0
+  }
+
+  const displayData = useClusteredData(data, superclusterZoomLevel);
 
   /**
    * when the component mounts, set it to autorotate the globe
@@ -238,6 +255,16 @@ function Globe({
 
     const handleViewpointChange = () => {
       const pov = globe.pointOfView();
+      const currentAltitude = convertGRUsToMeters(pov.altitude);
+      setCurrentGlobeAltitude(currentAltitude); // Update altitude state for clustering
+      console.log(
+        'altitude: ',
+        globe.pointOfView().altitude,
+        ' units, ',
+        convertGRUsToMeters(globe.pointOfView().altitude),
+        ' meters',
+      );
+
       reportViewpoint({
         // @ts-expect-error due to type inconsistency of library, it is typed as
         // a Camera but is actually a PerspectiveCamera. Run
@@ -365,8 +392,10 @@ function Globe({
                 // make parent brighter when user hovers over it
                 element.style.pointerEvents = 'auto';
                 element.onmouseenter = (event) => {
-                  if (event.target instanceof HTMLElement)
+                  if (event.target instanceof HTMLElement) {
                     event.target.style.opacity = '1';
+                    event.target.style.zIndex = '1000';
+                  }
                 };
                 element.onmouseleave = (event) => {
                   if (event.target instanceof HTMLElement)
