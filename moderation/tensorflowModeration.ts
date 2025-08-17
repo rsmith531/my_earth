@@ -47,9 +47,8 @@ export async function initializeModerator(
   // loaded
   const loading = new Promise<void>((resolve, reject) => {
     const newModel = new ToxicityClassifier(threshold);
-    newModel
-      .load()
-      .then(() => ready())
+    ready()
+      .then(() => newModel.load())
       .then(() => {
         model = newModel;
         resolve();
