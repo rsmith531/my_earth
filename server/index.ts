@@ -16,8 +16,12 @@ import { getVisibleRadius, saveNoteValidationSchema } from './utils';
 import { getMessagesWithin } from './db/queries';
 import { clustersKmeans } from '@turf/clusters-kmeans';
 import { featureCollection, point } from '@turf/helpers';
+import { classifyToxicity, initializeModerator } from 'moderation';
 
 console.log('[server] API endpoint is activating');
+
+// initialize the tensorflow moderator
+initializeModerator();
 
 const app = new Hono()
   .use('*', cors())
@@ -36,6 +40,97 @@ const app = new Hono()
     }),
     async (c) => {
       const validatedRequest = c.req.valid('json');
+      try {
+        // run note through tensorflow moderator
+        const moderationResults = await classifyToxicity(
+          validatedRequest.message,
+        );
+
+        // if they submit something that fails moderation, let them know, but also
+        // save the message to use as training data
+        let messageFkey: string | null = null;
+        let moderationMessage: string | null = null;
+
+        // first, handle the categories that the model determined the message meets
+        if (moderationResults.matchedResults.length > 0) {
+          // save the note
+          messageFkey =
+            (
+              await db
+                .insert(notes)
+                .values({
+                  message: validatedRequest.message,
+                  location: {
+                    x: validatedRequest.longitude,
+                    y: validatedRequest.latitude,
+                  },
+                  // specify null just to be certain
+                  publishedAt: null,
+                })
+                .returning({ id: notes.id })
+            )[0]?.id ?? null;
+
+          if (!messageFkey)
+            throw new Error('No message ID found for the flagged message');
+
+          // save the moderation fail
+          await db.insert(flaggedNotes).values({
+            id: messageFkey,
+            reason: moderationResults.matchedResults.map((result) => {
+              return result.category;
+            }),
+            flaggedBy: 'ml_model_fail',
+            mlModelOutput: JSON.stringify(moderationResults),
+          });
+          moderationMessage =
+            'We do not allow this type of content on our platform.';
+        }
+
+        if (moderationResults.uncertainResults.length > 0) {
+          // if the message was not previously saved, do it now
+          if (!messageFkey) {
+            messageFkey =
+              (
+                await db
+                  .insert(notes)
+                  .values({
+                    message: validatedRequest.message,
+                    location: {
+                      x: validatedRequest.longitude,
+                      y: validatedRequest.latitude,
+                    },
+                    // specify null just to be certain
+                    publishedAt: null,
+                  })
+                  .returning({ id: notes.id })
+              )[0]?.id ?? null;
+
+            if (!messageFkey)
+              throw new Error('No message ID found for the flagged message');
+
+            // save the moderation fail
+            await db.insert(flaggedNotes).values({
+              id: messageFkey,
+              reason: moderationResults.uncertainResults.map((result) => {
+                return result.category;
+              }),
+              flaggedBy: 'ml_model_uncertain',
+              mlModelOutput: JSON.stringify(moderationResults),
+            });
+            if (!moderationMessage)
+              moderationMessage =
+                'We think your note might contain content we do not allow. It has been flagged for review and will be published if it passes.';
+          }
+        }
+
+        if (moderationMessage) return c.json({ error: moderationMessage }, 418);
+      } catch (error) {
+        console.error(
+          `[api/save-note ${c.req.method}] encountered error while running note through moderator: `,
+          error,
+        );
+        return c.json({ error: 'Could not save note' }, 500);
+      }
       try {
         await db.insert(notes).values({
           message: validatedRequest.message,
