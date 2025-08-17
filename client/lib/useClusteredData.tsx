@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import Supercluster, { type PointFeature } from 'supercluster';
 
-
 // Define the shape of the clustered output data item
 interface ClusteredDataItem {
   message: string[];
@@ -12,7 +11,7 @@ interface ClusteredDataItem {
 }
 
 interface SuperclusterPointProperties {
-  message: string; 
+  message: string;
 }
 
 /**
@@ -26,21 +25,25 @@ interface SuperclusterPointProperties {
  * @returns An array of ClusteredDataItem, where each item might represent a single point or a cluster of points.
  */
 export function useClusteredData(
-  rawData: {
-  message: string;
-  longitude: number;
-  latitude: number;
-}[] | undefined,
+  rawData:
+    | {
+        message: string;
+        longitude: number;
+        latitude: number;
+      }[]
+    | undefined,
   zoomLevel: number,
   clusterRadius = 1500,
   maxClusterZoom = 16,
 ): ClusteredDataItem[] {
-  console.log('useClusteredData arguments: ',
+  console.log(
+    'useClusteredData arguments: ',
     // '\n  rawData: ', rawData,
-    '\n  zoomLevel: ', zoomLevel,
+    '\n  zoomLevel: ',
+    zoomLevel,
     // '\n  clusterRadius: ', clusterRadius,
     // '\n  maxClusterZoom: ', maxClusterZoom
-  )
+  );
 
   const superclusterInstance = useMemo(() => {
     return new Supercluster<SuperclusterPointProperties>({
@@ -50,19 +53,20 @@ export function useClusteredData(
   }, [clusterRadius, maxClusterZoom]);
 
   // Prepare raw data into GeoJSON Feature format for Supercluster.
-  const geoJsonFeatures = useMemo((): PointFeature<SuperclusterPointProperties>[] => {
-    if (!rawData) {
-      return [];
-    }
-    return rawData.map((item) => ({
-      type: 'Feature',
-      properties: { message: item.message },
-      geometry: {
-        type: 'Point',
-        coordinates: [item.longitude, item.latitude], // Supercluster expects [lng, lat]
-      },
-    }));
-  }, [rawData]);
+  const geoJsonFeatures =
+    useMemo((): PointFeature<SuperclusterPointProperties>[] => {
+      if (!rawData) {
+        return [];
+      }
+      return rawData.map((item) => ({
+        type: 'Feature',
+        properties: { message: item.message },
+        geometry: {
+          type: 'Point',
+          coordinates: [item.longitude, item.latitude], // Supercluster expects [lng, lat]
+        },
+      }));
+    }, [rawData]);
 
   const [clusteredOutput, setClusteredOutput] = useState<ClusteredDataItem[]>(
     [],
@@ -82,9 +86,15 @@ export function useClusteredData(
     );
 
     const mappedClusters: ClusteredDataItem[] = clusters.map((cluster) => {
-        console.log()
+      console.log();
+      // @ts-expect-error it seems to be there, but tacked on to the type
+      // using a keyed any property. check the library type for
+      // GeoJsonProperties
       if (cluster.properties.cluster) {
-        const children = superclusterInstance.getLeaves(Number(cluster.id), Number.POSITIVE_INFINITY);
+        const children = superclusterInstance.getLeaves(
+          Number(cluster.id),
+          Number.POSITIVE_INFINITY,
+        );
         const messages = children.map((child) => child.properties.message);
         return {
           message: messages,
