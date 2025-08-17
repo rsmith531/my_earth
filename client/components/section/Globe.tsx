@@ -13,6 +13,7 @@ import { TextureLoader, ShaderMaterial, Vector2 } from 'three';
 // @ts-expect-error no type :(
 import * as solar from 'solar-calculator';
 import { convertGRUsToMeters } from '@lib/utils';
+import { useClusteredData } from '@lib/useClusteredData';
 
 // https://thenewstack.io/recreating-shopifys-bfcm-globe-using-react-globe-gl/
 // day/night cycle code: https://github.com/vasturiano/react-globe.gl/blob/master/example/day-night-cycle/index.html
@@ -56,6 +57,32 @@ function Globe({
     interactive ? 0 : 500,
   );
   const [globeMaterial, setGlobeMaterial] = useState<ShaderMaterial>();
+
+  const [currentGlobeAltitude, setCurrentGlobeAltitude] = useState<number>(
+    convertGRUsToMeters(2),
+  );
+
+  // map the camera's altitude to a zoom level for the supercluster algorithm
+  let superclusterZoomLevel: number;
+  if (currentGlobeAltitude <= convertGRUsToMeters(0.2)) {
+    superclusterZoomLevel = 10;
+  } else if (currentGlobeAltitude <= convertGRUsToMeters(0.4)) {
+    superclusterZoomLevel = 9;
+  } else if (currentGlobeAltitude <= convertGRUsToMeters(0.5)) {
+    superclusterZoomLevel = 8;
+  } else if (currentGlobeAltitude <= convertGRUsToMeters(0.75)) {
+    superclusterZoomLevel = 7;
+  } else if (currentGlobeAltitude <= convertGRUsToMeters(2)) {
+    superclusterZoomLevel = 6;
+  } else if (currentGlobeAltitude <= convertGRUsToMeters(4.5)) {
+    superclusterZoomLevel = 5;
+  } else if (currentGlobeAltitude <= convertGRUsToMeters(6)) {
+    superclusterZoomLevel = 4;
+  } else {
+    superclusterZoomLevel = 0
+  }
+
+  const displayData = useClusteredData(data, superclusterZoomLevel);
 
   /**
    * when the component mounts, set it to autorotate the globe
@@ -228,6 +255,16 @@ function Globe({
 
     const handleViewpointChange = () => {
       const pov = globe.pointOfView();
+      const currentAltitude = convertGRUsToMeters(pov.altitude);
+      setCurrentGlobeAltitude(currentAltitude); // Update altitude state for clustering
+      console.log(
+        'altitude: ',
+        globe.pointOfView().altitude,
+        ' units, ',
+        convertGRUsToMeters(globe.pointOfView().altitude),
+        ' meters',
+      );
+
       reportViewpoint({
         // @ts-expect-error due to type inconsistency of library, it is typed as
         // a Camera but is actually a PerspectiveCamera. Run
@@ -314,38 +351,135 @@ function Globe({
         labelColor={() => 'white'}
         labelText={() => ''}
         // html elements
-        htmlElementsData={data ?? undefined}
+        htmlElementsData={displayData ?? undefined}
+        // @ts-expect-error the library wants d to be an object without
+        // specifying its properties, but I need types inside the function
         htmlLat={
-          data
-            ? (d) => {
-                // @ts-expect-error don't worry, this library just has bad typing
+          displayData
+            ? (d: { latitude: number }) => {
                 return d.latitude;
               }
             : undefined
         }
+        // @ts-expect-error the library wants d to be an object without
+        // specifying its properties, but I need types inside the function
         htmlLng={
-          data
-            ? (d) => {
-                // @ts-expect-error don't worry, this library just has bad typing
+          displayData
+            ? (d: { longitude: number }) => {
                 return d.longitude;
               }
             : undefined
         }
+        htmlElementVisibilityModifier={(el, isVisible) => {
+          el.style.opacity = isVisible ? '0.8' : '0';
+        }}
+        // @ts-expect-error the library wants d to be an object without
+        // specifying its properties, but I need types inside the function
         htmlElement={
-          data
-            ? (d): HTMLElement => {
+          displayData
+            ? (d: { message: string[] }): HTMLElement => {
+                // parent html element to contain all this stuff
                 const element = document.createElement('div');
-                // @ts-expect-error don't worry, this library just has bad typing
-                element.textContent = d.message;
+                // parent styling
                 element.style.textAlign = 'center';
-                element.style.color = 'var(--color-slate-700)';
                 element.style.maxWidth = '300px';
                 element.style.backgroundColor = 'var(--color-slate-200)';
                 element.style.borderRadius = '10px';
                 element.style.padding = '0.25rem';
                 element.style.borderColor = 'var(--color-slate-700)';
                 element.style.borderWidth = '3px';
-                element.style.opacity = '0.8';
+                element.style.transition = 'opacity 250ms'; // fades out of viewport
+                // make parent brighter when user hovers over it
+                element.style.pointerEvents = 'auto';
+                element.onmouseenter = (event) => {
+                  if (event.target instanceof HTMLElement) {
+                    event.target.style.opacity = '1';
+                    event.target.style.zIndex = '1000';
+                  }
+                };
+                element.onmouseleave = (event) => {
+                  if (event.target instanceof HTMLElement)
+                    event.target.style.opacity = '0.8';
+                };
+
+                // variable to select message in array to display
+                let currentIndex = 0;
+
+                // Create an element to display the message content
+                const messageDisplay = document.createElement('span');
+                messageDisplay.style.display = 'block'; // Ensure it takes its own line
+                messageDisplay.style.marginBottom = '0.5rem'; // Space between message and buttons
+                messageDisplay.style.color = 'var(--color-slate-700)';
+                element.appendChild(messageDisplay);
+
+                const updateMessageDisplay = () => {
+                  if (d.message && d.message.length > 0) {
+                    messageDisplay.textContent = d.message[currentIndex];
+                  } else {
+                    messageDisplay.textContent = 'No message available.';
+                  }
+                };
+                if (d.message.length > 1) {
+                  // button to nav backwards
+                  const navBack = document.createElement('button');
+                  navBack.style.marginRight = '0.5rem';
+                  navBack.style.padding = '0.25rem 0.25rem';
+                  navBack.style.backgroundColor = 'var(--color-slate-700)';
+                  navBack.style.color = 'var(--color-slate-200)';
+                  navBack.style.border = 'none';
+                  navBack.style.borderRadius = '500px';
+                  navBack.style.pointerEvents = 'auto';
+                  navBack.style.cursor = 'pointer';
+                  navBack.onclick = (event) => {
+                    event.stopPropagation();
+                    if (d.message && d.message.length > 0) {
+                      currentIndex =
+                        (currentIndex - 1 + d.message.length) %
+                        d.message.length; // Loop around
+                      updateMessageDisplay();
+                      console.log(
+                        'Navigated back to index:',
+                        currentIndex,
+                        'message:',
+                        d.message[currentIndex],
+                      );
+                    }
+                  };
+                  navBack.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>`;
+
+                  // button to nav forwards
+                  const navForward = document.createElement('button');
+                  navForward.style.marginLeft = '0.5rem';
+                  navForward.style.padding = '0.25rem 0.25rem';
+                  navForward.style.backgroundColor = 'var(--color-slate-700)';
+                  navForward.style.color = 'var(--color-slate-200)';
+                  navForward.style.border = 'none';
+                  navForward.style.borderRadius = '500px';
+                  navForward.style.pointerEvents = 'auto';
+                  navForward.style.cursor = 'pointer';
+                  navForward.onclick = (event) => {
+                    event.stopPropagation();
+                    if (d.message && d.message.length > 0) {
+                      currentIndex = (currentIndex + 1) % d.message.length; // Loop around
+                      updateMessageDisplay();
+                      console.log(
+                        'Navigated forward to index:',
+                        currentIndex,
+                        'message:',
+                        d.message[currentIndex],
+                      );
+                    }
+                  };
+                  navForward.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
+
+                  // Append the buttons to the element
+                  element.appendChild(navBack);
+                  element.appendChild(navForward);
+                }
+
+                // Initial display of the message
+                updateMessageDisplay();
+
                 return element;
               }
             : undefined
